@@ -147,6 +147,8 @@ def get_insider_trades(
     limit: int = 1000,
 ) -> list[InsiderTrade]:
     """Fetch insider trades from cache or API."""
+    if is_crypto(ticker):
+        return []
     # Check cache first
     if cached_data := _cache.get_insider_trades(ticker):
         # Filter cached data by date range

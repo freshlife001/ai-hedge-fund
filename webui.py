@@ -861,56 +861,56 @@ def run_hedge_fund_for_web(tickers, selected_analysts, model_name, start_date=No
                 broadcast_log(f"Error in {analyst_name}: {str(e)}", "error")
                 broadcast_log(traceback.format_exc(), "error")
     
-    # Always run risk management and portfolio management at the end
-    if "risk_management_agent" not in selected_analysts:
-        try:
-            broadcast_log("Running risk management analysis", "info")
-            result = risk_management_agent(AgentState(state))
-            if result:
-                if "messages" in result:
-                    state["messages"] = result["messages"]
-                if "data" in result:
-                    state["data"] = result["data"]
+    # # Always run risk management and portfolio management at the end
+    # if "risk_management_agent" not in selected_analysts:
+    #     try:
+    #         broadcast_log("Running risk management analysis", "info")
+    #         result = risk_management_agent(AgentState(state))
+    #         if result:
+    #             if "messages" in result:
+    #                 state["messages"] = result["messages"]
+    #             if "data" in result:
+    #                 state["data"] = result["data"]
                 
-                # Display output in CLI-style with colors
-                if "risk_management_agent" in state["data"]["analyst_signals"]:
-                    risk_output = state["data"]["analyst_signals"]["risk_management_agent"]
-                    print(f"\n{Fore.CYAN}{Style.BRIGHT}{'=' * 10}    Risk Management Agent     {'=' * 10}{Style.RESET_ALL}")
-                    print(json.dumps(risk_output, indent=2))
-                    print(f"{Fore.CYAN}{Style.BRIGHT}{'=' * 48}{Style.RESET_ALL}\n")
+    #             # Display output in CLI-style with colors
+    #             if "risk_management_agent" in state["data"]["analyst_signals"]:
+    #                 risk_output = state["data"]["analyst_signals"]["risk_management_agent"]
+    #                 print(f"\n{Fore.CYAN}{Style.BRIGHT}{'=' * 10}    Risk Management Agent     {'=' * 10}{Style.RESET_ALL}")
+    #                 print(json.dumps(risk_output, indent=2))
+    #                 print(f"{Fore.CYAN}{Style.BRIGHT}{'=' * 48}{Style.RESET_ALL}\n")
                     
-                    # Also broadcast to WebSocket
-                    broadcast_log("===== Risk Management Analysis =====", "info")
-                    broadcast_log(json.dumps(risk_output, indent=2), "info")
+    #                 # Also broadcast to WebSocket
+    #                 broadcast_log("===== Risk Management Analysis =====", "info")
+    #                 broadcast_log(json.dumps(risk_output, indent=2), "info")
                 
-            broadcast_log("Completed risk management analysis", "success")
-        except Exception as e:
-            broadcast_log(f"Error in risk management: {str(e)}", "error")
+    #         broadcast_log("Completed risk management analysis", "success")
+    #     except Exception as e:
+    #         broadcast_log(f"Error in risk management: {str(e)}", "error")
     
-    if "portfolio_management_agent" not in selected_analysts:
-        try:
-            broadcast_log("Running portfolio management analysis", "info")
-            result = portfolio_management_agent(AgentState(state))
-            if result:
-                if "messages" in result:
-                    state["messages"] = result["messages"]
-                if "data" in result:
-                    state["data"] = result["data"]
+    # if "portfolio_management_agent" not in selected_analysts:
+    #     try:
+    #         broadcast_log("Running portfolio management analysis", "info")
+    #         result = portfolio_management_agent(AgentState(state))
+    #         if result:
+    #             if "messages" in result:
+    #                 state["messages"] = result["messages"]
+    #             if "data" in result:
+    #                 state["data"] = result["data"]
                 
-                # Display output in CLI-style with colors for portfolio decisions
-                if "portfolio_decision" in state["data"]:
-                    portfolio_decisions = state["data"]["portfolio_decision"]
-                    print(f"\n{Fore.CYAN}{Style.BRIGHT}{'=' * 10}    Portfolio Management Agent     {'=' * 10}{Style.RESET_ALL}")
-                    print(json.dumps(portfolio_decisions, indent=2))
-                    print(f"{Fore.CYAN}{Style.BRIGHT}{'=' * 48}{Style.RESET_ALL}\n")
+    #             # Display output in CLI-style with colors for portfolio decisions
+    #             if "portfolio_decision" in state["data"]:
+    #                 portfolio_decisions = state["data"]["portfolio_decision"]
+    #                 print(f"\n{Fore.CYAN}{Style.BRIGHT}{'=' * 10}    Portfolio Management Agent     {'=' * 10}{Style.RESET_ALL}")
+    #                 print(json.dumps(portfolio_decisions, indent=2))
+    #                 print(f"{Fore.CYAN}{Style.BRIGHT}{'=' * 48}{Style.RESET_ALL}\n")
                     
-                    # Also broadcast to WebSocket
-                    broadcast_log("===== Portfolio Decisions =====", "info")
-                    broadcast_log(json.dumps(portfolio_decisions, indent=2), "info")
+    #                 # Also broadcast to WebSocket
+    #                 broadcast_log("===== Portfolio Decisions =====", "info")
+    #                 broadcast_log(json.dumps(portfolio_decisions, indent=2), "info")
                 
-            broadcast_log("Completed portfolio management analysis", "success")
-        except Exception as e:
-            broadcast_log(f"Error in portfolio management: {str(e)}", "error")
+    #         broadcast_log("Completed portfolio management analysis", "success")
+    #     except Exception as e:
+    #         broadcast_log(f"Error in portfolio management: {str(e)}", "error")
     
     # Prepare the final output
     result = {
