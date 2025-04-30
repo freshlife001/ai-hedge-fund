@@ -17,6 +17,14 @@ from data.models import (
     InsiderTradeResponse,
     CompanyFactsResponse,
 )
+from tools.crypto_api import (
+    is_crypto,
+    get_crypto_prices,
+    get_crypto_metrics,
+    search_crypto_line_items,
+    get_crypto_news,
+    get_crypto_market_cap
+)
 
 # Global cache instance
 _cache = get_cache()
@@ -24,6 +32,8 @@ _cache = get_cache()
 
 def get_prices(ticker: str, start_date: str, end_date: str) -> list[Price]:
     """Fetch price data from cache or API."""
+    if is_crypto(ticker):
+        return get_crypto_prices(ticker, start_date, end_date)
     # Check cache first
     if cached_data := _cache.get_prices(ticker):
         # Filter cached data by date range and convert to Price objects
@@ -60,6 +70,8 @@ def get_financial_metrics(
     limit: int = 10,
 ) -> list[FinancialMetrics]:
     """Fetch financial metrics from cache or API."""
+    if is_crypto(ticker):
+        return get_crypto_metrics(ticker, end_date, period, limit)
     # Check cache first
     if cached_data := _cache.get_financial_metrics(ticker):
         # Filter cached data by date and limit
@@ -99,6 +111,8 @@ def search_line_items(
     limit: int = 10,
 ) -> list[LineItem]:
     """Fetch line items from API."""
+    if is_crypto(ticker):
+        return search_crypto_line_items(ticker, line_items, end_date, period, limit)
     # If not in cache or insufficient data, fetch from API
     headers = {}
     if api_key := os.environ.get("FINANCIAL_DATASETS_API_KEY"):
@@ -196,6 +210,8 @@ def get_company_news(
     limit: int = 1000,
 ) -> list[CompanyNews]:
     """Fetch company news from cache or API."""
+    if is_crypto(ticker):
+        return get_crypto_news(ticker, end_date, start_date, limit)
     # Check cache first
     if cached_data := _cache.get_company_news(ticker):
         # Filter cached data by date range
@@ -257,6 +273,8 @@ def get_market_cap(
     end_date: str,
 ) -> float | None:
     """Fetch market cap from the API."""
+    if is_crypto(ticker):
+        return get_crypto_market_cap(ticker, end_date)
     # Check if end_date is today
     if end_date == datetime.datetime.now().strftime("%Y-%m-%d"):
         # Get the market cap from company facts API
