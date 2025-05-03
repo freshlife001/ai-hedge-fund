@@ -727,10 +727,11 @@ function AnalysisProgress({ progress, tickers, analysts, error, onCancel }) {
   );
 }
 
-function AnalysisResults({ results, onNewAnalysis }) {
+export function AnalysisResults({ results, onNewAnalysis }) {
   return (
     <Box>
-      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+
+      {onNewAnalysis && (<Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="h6">
           Analysis Results ({results.date})
         </Typography>
@@ -740,8 +741,7 @@ function AnalysisResults({ results, onNewAnalysis }) {
         >
           New Analysis
         </Button>
-      </Box>
-      
+      </Box>)}
       <Grid container spacing={3}>
         {results.tickers.map(ticker => {
           const tickerData = results.signals[ticker];

@@ -307,6 +307,18 @@ files = [
 ]
 
 [[package]]
+name = "cachelib"
+version = "0.13.0"
+description = "A collection of cache libraries in the same API interface."
+optional = false
+python-versions = ">=3.8"
+groups = ["main"]
+files = [
+    {file = "cachelib-0.13.0-py3-none-any.whl", hash = "sha256:8c8019e53b6302967d4e8329a504acf75e7bc46130291d30188a6e4e58162516"},
+    {file = "cachelib-0.13.0.tar.gz", hash = "sha256:209d8996e3c57595bee274ff97116d1d73c4980b2fd9a34c7846cd07fd2e1a48"},
+]
+
+[[package]]
 name = "cachetools"
 version = "5.5.2"
 description = "Extensible memoizing collections and decorators"
@@ -652,6 +664,22 @@ Werkzeug = ">=3.1"
 [package.extras]
 async = ["asgiref (>=3.2)"]
 dotenv = ["python-dotenv"]
+
+[[package]]
+name = "flask-caching"
+version = "2.3.1"
+description = "Adds caching support to Flask applications."
+optional = false
+python-versions = ">=3.8"
+groups = ["main"]
+files = [
+    {file = "Flask_Caching-2.3.1-py3-none-any.whl", hash = "sha256:d3efcf600e5925ea5a2fcb810f13b341ae984f5b52c00e9d9070392f3ca10761"},
+    {file = "flask_caching-2.3.1.tar.gz", hash = "sha256:65d7fd1b4eebf810f844de7de6258254b3248296ee429bdcb3f741bcbf7b98c9"},
+]
+
+[package.dependencies]
+cachelib = ">=0.9.0"
+Flask = "*"
 
 [[package]]
 name = "flask-cors"
@@ -4000,4 +4028,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9"
-content-hash = "f5234ae7909f04aa07a7539eedc0b816b6dcbcc44029600428abe55fc00b9050"
+content-hash = "56a25ecdab7831d33d7851d158576dbb50e5350ae0ba4527b8ff92f05c69a671"

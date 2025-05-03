@@ -43,7 +43,7 @@ def is_crypto(ticker: str) -> bool:
 
 # Add new function for crypto prices
 def get_crypto_prices(ticker: str, start_date: str, end_date: str) -> list[Price]:
-    ticker = ticker.replace("crypto:", "")
+    symbol = ticker.replace("crypto:", "")
     cache_key = f"crypto_{ticker}"
     if cached_data := _cache.get_prices(cache_key):
         filtered_data = [Price(**price) for price in cached_data if start_date <= price["time"] <= end_date]
@@ -58,16 +58,8 @@ def get_crypto_prices(ticker: str, start_date: str, end_date: str) -> list[Price
     
     # Try CoinCap API first (completely free, no API key required)
     try:
-        # Normalize ticker symbol (remove -USD or /USD if present)
-        coin_id = ticker.lower().replace("-usd", "").replace("/usd", "")
-        
-        # CoinCap uses lowercase, standard names like "bitcoin" instead of symbols
-        if coin_id == "btc":
-            coin_id = "bitcoin"
-        elif coin_id == "eth":
-            coin_id = "ethereum"
-        elif coin_id == "sol":
-            coin_id = "solana"
+        # Normalize ticker symbol and get the appropriate coin ID
+        coin_id = get_coingecko_coin_id(symbol)
         
         # Calculate interval in days for history API
         interval = "d1"  # daily interval
@@ -147,16 +139,45 @@ def get_crypto_prices(ticker: str, start_date: str, end_date: str) -> list[Price
     # Fallback to other APIs as they were already implemented
     # ... existing code for CoinGecko, CryptoCompare, and Binance ...
 
-def get_coingecko_coin_id(ticker: str) -> str:
-    """Get the CoinGecko ID for a given ticker."""
-    coin_id = ticker.lower().replace("-usd", "").replace("/usd", "")
-    if coin_id == "btc":
-        coin_id = "bitcoin"
-    elif coin_id == "eth":
-        coin_id = "ethereum"
-    elif coin_id == "sol":
-        coin_id = "solana"
-    return coin_id
+# Module-level cache for crypto mappings
+_crypto_mappings = None
+
+def _load_crypto_mappings():
+    """Load the crypto mappings from available_cryptos.json into memory."""
+    global _crypto_mappings
+    if _crypto_mappings is not None:
+        return _crypto_mappings
+    
+    try:
+        with open("./webui/public/available_cryptos.json", "r") as f:
+            _crypto_mappings = json.load(f)
+        return _crypto_mappings
+    except Exception as e:
+        print(f"Error loading crypto mapping: {str(e)}")
+        return []
+
+def get_coingecko_coin_id(symbol: str) -> str:
+    """Get the CoinGecko ID for a given ticker using the available_cryptos.json mapping."""
+    # Normalize the symbol first
+    normalized_symbol = symbol.lower().replace("-usd", "").replace("/usd", "")
+    
+    # Try to get the mapping from the cached crypto mappings
+    cryptos = _load_crypto_mappings()
+    if cryptos:
+        for crypto in cryptos:
+            if crypto.get("symbol", "").lower() == normalized_symbol:
+                return crypto.get("id", normalized_symbol)
+    
+    # Fallback to hardcoded mapping if file can't be loaded or symbol not found
+    if normalized_symbol == "btc":
+        return "bitcoin"
+    elif normalized_symbol == "eth":
+        return "ethereum"
+    elif normalized_symbol == "sol":
+        return "solana"
+    
+    # If no mapping found, return the normalized symbol
+    return normalized_symbol
 
 def compareDateStr(date_str1: str, date_str2: str) -> bool:
     """Compare two date strings."""
@@ -174,7 +195,7 @@ def get_crypto_metrics(
 ) -> list[FinancialMetrics]:
     """Fetch cryptocurrency metrics from CoinGecko or other sources."""
     # Check cache first
-    ticker = ticker.replace("crypto:", "")
+    symbol = ticker.replace("crypto:", "")
     cache_key = f"crypto_{ticker}"
     if cached_data := _cache.get_financial_metrics(cache_key):
         # Filter cached data by date and limit
@@ -184,7 +205,7 @@ def get_crypto_metrics(
             return filtered_data[:limit]
     
     # Normalize ticker symbol
-    coin_id = get_coingecko_coin_id(ticker)
+    coin_id = get_coingecko_coin_id(symbol)
     try:
         # Get coin data from CoinGecko
         url = f"https://api.coingecko.com/api/v3/coins/{coin_id}"
@@ -262,7 +283,8 @@ def get_crypto_metrics(
             
             return [metrics]
     except Exception as e:
-        print(f"CoinGecko metrics error for {ticker}: {str(e)}")
+        print(f"CoinGecko metrics error for {symbol}: {str(e)}")
+        raise e
     
     # Create an empty metrics object if no data was found
     empty_metrics = FinancialMetrics(
@@ -288,8 +310,8 @@ def search_crypto_line_items(
 ) -> list[LineItem]:
     """Create appropriate line items for cryptocurrencies."""
     # Normalize ticker symbol
-    ticker = ticker.replace("crypto:", "")
-    coin_id = get_coingecko_coin_id(ticker)
+    symbol = ticker.replace("crypto:", "")
+    coin_id = get_coingecko_coin_id(symbol)
     try:
         # Get coin data from CoinGecko
         url = f"https://api.coingecko.com/api/v3/coins/{coin_id}"
@@ -387,7 +409,7 @@ def search_crypto_line_items(
                 
             return [result]
     except Exception as e:
-        print(f"Error getting crypto line items for {ticker}: {str(e)}")
+        print(f"Error getting crypto line items for {symbol}: {str(e)}")
     
     # Return empty result if we couldn't get data
     result = LineItem(
@@ -408,8 +430,8 @@ def get_crypto_news(
 ) -> list[CompanyNews]:
     """Fetch news articles for a cryptocurrency."""
     # Normalize ticker symbol
-    ticker = ticker.replace("crypto:", "")
-    coin_id = ticker.lower().replace("-usd", "").replace("/usd", "")
+    symbol = ticker.replace("crypto:", "")
+    coin_id = get_coingecko_coin_id(symbol)
     
     # Default start date to 30 days ago if not specified
     if not start_date:
@@ -480,8 +502,8 @@ def get_crypto_market_cap(
     end_date: str,
 ) -> float | None:
     """Fetch market cap from Yahoo Finance."""
-    ticker = ticker.replace("crypto:", "")
-    coin_id = ticker.lower().replace("-usd", "").replace("/usd", "")
+    symbol = ticker.replace("crypto:", "")
+    coin_id = get_coingecko_coin_id(symbol)
     cache_key = f"crypto_{ticker}"
     if cached_data := _cache.get_financial_metrics(cache_key):
         filtered_data = [FinancialMetrics(**metric) for metric in cached_data if compareDateStr(metric["report_period"], end_date)]

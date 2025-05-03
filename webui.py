@@ -3,6 +3,7 @@ import os
 import sys
 import subprocess
 import webbrowser
+import hashlib
 import time
 import shutil
 import json
@@ -10,6 +11,7 @@ import threading
 from pathlib import Path
 import traceback
 from flask import Flask, request, jsonify, Response
+from flask_caching import Cache
 from flask_cors import CORS
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
@@ -33,10 +35,41 @@ API_PORT = 5000
 SRC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "src")
 sys.path.append(SRC_DIR)
 
+cache = Cache()
+
+# Custom caching decorator that adjusts timeout based on response status code
+def cache_with_status_check(timeout=60*60*24, key_prefix=None):
+    """Custom caching decorator that uses a shorter timeout for error responses"""
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            # Use the original cache.cached decorator with the longer timeout
+            cached_func = cache.cached(timeout=timeout, key_prefix=key_prefix)(f)
+            response = cached_func(*args, **kwargs)
+            
+            # If response is a tuple with status code that's not 200, use a shorter timeout
+            if isinstance(response, tuple) and len(response) > 1 and isinstance(response[1], int) and response[1] != 200:
+                # Create a new key for this specific request
+                if callable(key_prefix):
+                    cache_key = key_prefix()
+                elif key_prefix:
+                    cache_key = key_prefix
+                else:
+                    cache_key = request.path
+                
+                # Set a shorter timeout (3 minutes) for error responses
+                print(f"Setting shorter timeout for error response: {cache_key}")
+                cache.set(cache_key, response, timeout=3*60)
+            
+            return response
+        return decorated_function
+    return decorator
+
 # Add these imports at the top of the file if they're not already there
 import io
 import sys
 import traceback
+from functools import wraps
 
 # Then move the VerboseLogger class near the top of the file,
 # right after your imports and before functions that use it
@@ -172,6 +205,12 @@ def start_api_server(host=DEFAULT_HOST, port=API_PORT):
         return
 
     app = Flask(__name__)
+    # Option 1: Simple in-memory cache (good for development)
+    app.config['CACHE_TYPE'] = 'SimpleCache'
+    app.config['CACHE_DEFAULT_TIMEOUT'] = 300  # 5 minutes
+
+    cache.init_app(app)
+
     CORS(app, resources={r"/*": {"origins": "*"}})  # Allow requests from any origin
     sock = Sock(app)
 
@@ -222,6 +261,10 @@ def start_api_server(host=DEFAULT_HOST, port=API_PORT):
         })
 
     @app.route('/api/analysis', methods=['POST'])
+    @cache_with_status_check(
+        timeout=60 * 60 * 24,
+        key_prefix=lambda: f"analysis_{hashlib.md5(json.dumps(request.json or {}, sort_keys=True).encode()).hexdigest()}"  # creates a unique key from request body
+    )
     def run_analysis():
         """Run hedge fund analysis"""
         try:
@@ -238,68 +281,72 @@ def start_api_server(host=DEFAULT_HOST, port=API_PORT):
             print(f"Using model: {model_name}")
             
             # Try to run the web-specific analysis function
-            try:
-                result = run_hedge_fund_for_web(
-                    tickers=ticker_list,
-                    selected_analysts=selected_analysts,
-                    model_name=model_name,
-                    start_date=data.get('startDate') or None,
-                    end_date=data.get('endDate') or None,
-                    initial_cash=data.get('initialCash', 100000),
-                    is_crypto=data.get('isCrypto', False)
-                )
+           # try:
+            result = run_hedge_fund_for_web(
+                tickers=ticker_list,
+                selected_analysts=selected_analysts,
+                model_name=model_name,
+                start_date=data.get('startDate') or None,
+                end_date=data.get('endDate') or None,
+                initial_cash=data.get('initialCash', 100000),
+                is_crypto=data.get('isCrypto', False)
+            )
+            
+            print(f"Analysis completed successfully {result}")
+            return jsonify(result)
                 
-                print("Analysis completed successfully")
-                return jsonify(result)
+            # except Exception as e:
+            #     # If real analysis fails, fall back to simulated results
+            #     print(f"Error running real analysis: {str(e)}")
+            #     print(traceback.format_exc())
+            #     broadcast_log(f"Error in real analysis: {str(e)}", "error")
+            #     broadcast_log(traceback.format_exc(), "error")
                 
-            except Exception as e:
-                # If real analysis fails, fall back to simulated results
-                print(f"Error running real analysis: {str(e)}")
-                print(traceback.format_exc())
-                broadcast_log(f"Error in real analysis: {str(e)}", "error")
-                broadcast_log(traceback.format_exc(), "error")
+            #     # Create fallback results
+            #     result = {
+            #         "ticker_analyses": {},
+            #         "portfolio": {"cash": data.get('initialCash', 100000), "positions": {}}
+            #     }
                 
-                # Create fallback results
-                result = {
-                    "ticker_analyses": {},
-                    "portfolio": {"cash": data.get('initialCash', 100000), "positions": {}}
-                }
-                
-                # Process each ticker directly (no threading)
-                for ticker in ticker_list:
-                    print(f"Processing ticker: {ticker}")
-                    result["ticker_analyses"][ticker] = {
-                        "signals": {},
-                        "reasoning": {}
-                    }
+            #     # Process each ticker directly (no threading)
+            #     for ticker in ticker_list:
+            #         print(f"Processing ticker: {ticker}")
+            #         result["ticker_analyses"][ticker] = {
+            #             "signals": {},
+            #             "reasoning": {}
+            #         }
                     
-                    # Fill in results for each analyst
-                    for analyst in selected_analysts:
-                        print(f"Running {analyst} analysis on {ticker}")
+            #         # Fill in results for each analyst
+            #         for analyst in selected_analysts:
+            #             print(f"Running {analyst} analysis on {ticker}")
                         
-                        # Add fake results
-                        import random
-                        signal = random.choice(['bullish', 'bearish', 'neutral'])
-                        confidence = random.randint(60, 95)
+            #             # Add fake results
+            #             import random
+            #             signal = random.choice(['bullish', 'bearish', 'neutral'])
+            #             confidence = random.randint(60, 95)
                         
-                        # Update results
-                        result["ticker_analyses"][ticker]["signals"][analyst] = signal
-                        result["ticker_analyses"][ticker]["signals"][f"{analyst}_confidence"] = confidence
-                        result["ticker_analyses"][ticker]["reasoning"][analyst] = f"This is a detailed analysis of {ticker} by {analyst}."
+            #             # Update results
+            #             result["ticker_analyses"][ticker]["signals"][analyst] = signal
+            #             result["ticker_analyses"][ticker]["signals"][f"{analyst}_confidence"] = confidence
+            #             result["ticker_analyses"][ticker]["reasoning"][analyst] = f"This is a detailed analysis of {ticker} by {analyst}."
                     
-                    # Add overall signal
-                    result["ticker_analyses"][ticker]["signals"]["overall"] = "neutral"
-                    result["ticker_analyses"][ticker]["signals"]["confidence"] = 70
+            #         # Add overall signal
+            #         result["ticker_analyses"][ticker]["signals"]["overall"] = "neutral"
+            #         result["ticker_analyses"][ticker]["signals"]["confidence"] = 70
                 
-                print("Analysis completed with fallback data")
-                return jsonify(result)
+            #     print("Analysis completed with fallback data")
+            #     return jsonify(result)
         
         except Exception as e:
             print(f"API error: {str(e)}")
-            print(traceback.format_exc())
+            #print(traceback.format_exc())
             return jsonify({"error": str(e)}), 500
 
     @app.route('/api/backtest', methods=['POST'])
+    @cache_with_status_check(
+        timeout=60 * 60 * 24,
+        key_prefix=lambda: f"backtest_{hashlib.md5(json.dumps(request.json or {}, sort_keys=True).encode()).hexdigest()}" # creates a unique key from request body
+    )
     def run_backtest():
         """Run backtesting on historical data"""
         try:
@@ -359,6 +406,10 @@ def start_api_server(host=DEFAULT_HOST, port=API_PORT):
             return jsonify({"error": str(e), "traceback": traceback.format_exc()}), 500
 
     @app.route('/api/round-table', methods=['POST'])
+    @cache_with_status_check(
+        timeout=60 * 60 * 24,
+        key_prefix=lambda: f"round_table_{hashlib.md5(json.dumps(request.json or {}, sort_keys=True).encode()).hexdigest()}"  # creates a unique key from request body
+    )
     def run_round_table():
         """Run a round table discussion for a ticker"""
         try:
@@ -860,6 +911,7 @@ def run_hedge_fund_for_web(tickers, selected_analysts, model_name, start_date=No
             except Exception as e:
                 broadcast_log(f"Error in {analyst_name}: {str(e)}", "error")
                 broadcast_log(traceback.format_exc(), "error")
+                raise e
     
     # # Always run risk management and portfolio management at the end
     # if "risk_management_agent" not in selected_analysts:
@@ -1017,4 +1069,4 @@ def main():
     return 0
 
 if __name__ == "__main__":
-    sys.exit(main()) 
+    sys.exit(main())

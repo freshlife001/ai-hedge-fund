@@ -200,6 +200,8 @@ def get_reddit_posts(ticker: str, start_date: str = None, end_date: str = None, 
         # Only use r/wallstreetbets
         subreddit = reddit.subreddit("wallstreetbets")
         all_posts = []
+
+        ticker = ticker.replace("crypto:", "")
         
         # Search terms - both "$TICKER" and "TICKER" formats
         search_terms = [f"${ticker}", ticker]

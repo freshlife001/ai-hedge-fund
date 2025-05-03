@@ -9,10 +9,10 @@ import Head from 'next/head';
 import EnhancedConsole from '../components/EnhancedConsole';
 
 function MyApp({ Component, pageProps }) {
-  return (
+  // Check if the page has a custom layout
+  const getLayout = Component.getLayout || ((page) => (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
-      {/* Remove SnackbarProvider wrapper */}
       <Head>
         <title>Hedge Fund AI</title>
         <meta name="description" content="AI-powered investment analysis platform" />
@@ -20,11 +20,13 @@ function MyApp({ Component, pageProps }) {
         {/* Font links moved to _document.js */}
       </Head>
       <Layout>
-        <Component {...pageProps} />
+        {page}
       </Layout>
       <EnhancedConsole />
     </ThemeProvider>
-  );
+  ));
+
+  return getLayout(<Component {...pageProps} />);
 }
 
-export default MyApp; 
+export default MyApp;
