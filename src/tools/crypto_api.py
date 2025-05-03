@@ -407,6 +407,32 @@ def search_crypto_line_items(
                     # Not applicable for crypto
                     result.goodwill_and_intangible_assets = None
                 
+                elif item == "ebit":
+                    # Not applicable for crypto
+                    result.ebit = None
+                elif item == "ebitda":
+                    # Not applicable for crypto
+                    result.ebitda = None
+                elif item == "total_debt":
+                    # Not applicable for crypto
+                    result.total_debt = None
+                elif item == "cash_and_equivalents":
+                    # Not applicable for crypto
+                    result.cash_and_equivalents = None
+                elif item == "operating_margin":
+                    # Not applicable for crypto
+                    result.operating_margin = None
+                elif item == "earnings_per_share":
+                    # Not applicable for crypto
+                    result.earnings_per_share = None
+                elif item == "debt_to_equity":
+                    # Not applicable for crypto
+                    result.debt_to_equity = None
+                elif item == "shareholders_equity":
+                    # Not applicable for crypto
+                    result.shareholders_equity = None
+                    
+                
             return [result]
     except Exception as e:
         print(f"Error getting crypto line items for {symbol}: {str(e)}")
@@ -431,7 +457,6 @@ def get_crypto_news(
     """Fetch news articles for a cryptocurrency."""
     # Normalize ticker symbol
     symbol = ticker.replace("crypto:", "")
-    coin_id = get_coingecko_coin_id(symbol)
     
     # Default start date to 30 days ago if not specified
     if not start_date:
@@ -442,7 +467,7 @@ def get_crypto_news(
         # CryptoCompare News API (free tier)
         url = "https://data-api.coindesk.com/news/v1/article/list"
         params = {
-            "categories": coin_id,
+            "categories": symbol,
             "lang": "EN",
             "limit": "10"
         }
@@ -461,12 +486,12 @@ def get_crypto_news(
                 
                 for article in data["Data"]:
                     # Convert published timestamp to date string
-                    published_date = datetime.fromtimestamp(article["published_on"]).strftime("%Y-%m-%d")
+                    published_date = datetime.fromtimestamp(article["PUBLISHED_ON"]).strftime("%Y-%m-%d")
                     
                     # Check if within date range
                     if start_date <= published_date <= end_date:
                         # Determine sentiment (basic approach)
-                        title_lower = article["title"].lower()
+                        title_lower = article["TITLE"].lower()
                         if any(word in title_lower for word in ["surge", "soar", "jump", "rally", "bullish", "high"]):
                             sentiment = "positive"
                         elif any(word in title_lower for word in ["drop", "fall", "crash", "bearish", "low", "down"]):
@@ -476,19 +501,18 @@ def get_crypto_news(
                         
                         news = CompanyNews(
                             ticker=ticker,
-                            title=article["title"],
-                            author=article.get("author", "Unknown"),
-                            source=article.get("source", "CryptoCompare"),
+                            title=article["TITLE"],
+                            author=article.get("AUTHORS", "Unknown"),
+                            source=article.get("SOURCE_DATA", {"NAME": "CryptoCompare"}).get("NAME", "Unknown"),
                             date=published_date,
-                            url=article["url"],
-                            sentiment=sentiment
+                            url=article["URL"],
+                            sentiment=article.get("SENTIMENT", sentiment).lower(),
                         )
                         
                         news_list.append(news)
                         
                         if len(news_list) >= limit:
                             break
-                
                 return news_list
     except Exception as e:
         print(f"CryptoCompare news error for {ticker}: {str(e)}")

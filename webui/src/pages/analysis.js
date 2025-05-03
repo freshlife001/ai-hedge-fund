@@ -790,7 +790,7 @@ export function AnalysisResults({ results, onNewAnalysis }) {
                     Analyst Signals
                   </Typography>
                   
-                  <Box sx={{ maxHeight: 300, overflowY: 'auto', pr: 1 }}>
+                  <Box sx={{ maxHeight: 600, overflowY: 'auto', pr: 1 }}>
                     {tickerData && tickerData.analysts.map((analyst, index) => {
                       const analystSignalColor = 
                         analyst.signal === 'bullish' ? 'success.main' :
