@@ -262,7 +262,7 @@ const renderResponses = () => {
             renderInput={(params) => (
               <TextField
                 {...params}
-                label={isCrypto ? "Select a crypto symbol" : "Select a ticker symbol"}
+                label={isCrypto ? "Select a crypto symbol" : "Select a stock ticker symbol"}
                 variant="outlined"
                 sx={{ mb: 2 }}
                 disabled={loading}
