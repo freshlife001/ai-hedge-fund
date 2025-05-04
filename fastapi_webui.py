@@ -173,7 +173,6 @@ def create_app():
     # Try importing the main hedge fund modules
     try:
         from src.main import run_hedge_fund
-        from src.backtester import Backtester
         from src.llm.models import LLM_ORDER, get_model_info
         from src.utils.analysts import ANALYST_ORDER
     except ImportError as e:
