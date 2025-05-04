@@ -26,7 +26,21 @@ const agentOptions = [
   // { label: 'Risk Management', value: 'risk_management_agent', description: 'Controls position sizing based on portfolio risk factors' },
 ];
 
+
+
 const AskPage = () => {
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const tickersRes = await fetch('available_tickers.json');
+      const cryptosRes = await fetch('available_cryptos.json');
+      const tickersData = await tickersRes.json();
+      const cryptosData = await cryptosRes.json();
+      setTickers(tickersData.tickers);
+      setCryptos(cryptosData);
+    };
+    fetchData();
+  }, []);
   const [responses, setResponses] = useState([]);
 
 const addResponse = (newResponse) => {
@@ -54,18 +68,6 @@ const renderResponses = () => {
   );
 };
 
-  useEffect(() => {
-    fetch('/available_tickers.json')
-      .then(response => response.json())
-      .then(data => setTickers(data.tickers))
-      .catch(error => console.error('Error loading tickers:', error));
-    
-    fetch('/available_cryptos.json')
-      .then(response => response.json())
-      .then(data => setCryptos(data))
-      .catch(error => console.error('Error loading cryptos:', error));
-  }, []);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!selectedSymbol) return;
@@ -80,7 +82,7 @@ const renderResponses = () => {
     
 
       const ticker_list = ticker.split(',').map(t => t.trim());
-      const response = await fetch('http://localhost:5010/api/analysis', {
+      const response = await fetch('/api/analysis', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
