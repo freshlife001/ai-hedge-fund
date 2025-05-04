@@ -265,8 +265,7 @@ def run_hedge_fund_for_web(tickers, selected_analysts, model_name, start_date=No
     Now runs in a thread pool to avoid blocking the event loop.
     """
     # Import necessary modules
-    from src.main import create_workflow
-    from src.graph.state import AgentState, show_agent_reasoning
+    from src.graph.state import AgentState
     from src.llm.models import get_model_info
     
     # Import progress tracker from the correct location
