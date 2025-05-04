@@ -6,6 +6,7 @@ import json
 from typing_extensions import Literal
 from utils.progress import progress
 from utils.llm import call_llm
+from datetime import datetime, timedelta
 
 from tools.api import get_financial_metrics, get_market_cap, search_line_items, get_company_news, get_insider_trades
 
@@ -410,7 +411,7 @@ def analyze_information_asymmetry(company_news: list, insider_trades: list, tick
     # Analyze timing patterns between news and insider activity
     if company_news and insider_trades and len(insider_trades) > 0:
         # Look for insider trading before significant news
-        news_dates = [news.date for news in company_news]
+        news_dates = [news.date.split('T')[0] for news in company_news]
         trade_dates = [trade.transaction_date for trade in insider_trades if trade.transaction_date]
         
         # Simple pattern detection - this could be enhanced with more sophisticated analysis
