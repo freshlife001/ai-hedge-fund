@@ -85,8 +85,6 @@ const renderResponses = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           tickers: ticker,
-          startDate: new Date().toISOString().split('T')[0],
-          endDate: new Date().toISOString().split('T')[0],
           modelName: 'deepseek-reasoner',
           selectedAnalysts: [selectedAgent.value],
           initialCash: 100000,
