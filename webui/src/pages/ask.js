@@ -36,8 +36,12 @@ const AskPage = () => {
       const cryptosRes = await fetch('available_cryptos.json');
       const tickersData = await tickersRes.json();
       const cryptosData = await cryptosRes.json();
+      // Filter out duplicate symbols
+      const uniqueCryptos = cryptosData.filter((crypto, index, self) =>
+        index === self.findIndex((c) => c.symbol === crypto.symbol)
+      );
       setTickers(tickersData.tickers);
-      setCryptos(cryptosData);
+      setCryptos(uniqueCryptos);
     };
     fetchData();
   }, []);
