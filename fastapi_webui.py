@@ -325,6 +325,9 @@ def run_hedge_fund_for_web(tickers, selected_analysts, model_name, start_date=No
     from src.agents.charlie_munger import charlie_munger_agent
     from src.agents.cathie_wood import cathie_wood_agent
     from src.agents.cathie_wood_crypto import cathie_wood_crypto_agent
+    from src.agents.elon_musk_crypto import elon_musk_crypto_agent
+    from src.agents.vitalik_buterin_crypto import vitalik_buterin_crypto_agent
+    from src.agents.changpeng_zhao_crypto import changpeng_zhao_crypto_agent
     from src.agents.stanley_druckenmiller import stanley_druckenmiller_agent
     from src.agents.michael_burry import michael_burry_agent
     from src.agents.peter_lynch import peter_lynch_agent
@@ -347,6 +350,9 @@ def run_hedge_fund_for_web(tickers, selected_analysts, model_name, start_date=No
         "stanley_druckenmiller_agent": stanley_druckenmiller_agent,
         "cathie_wood_agent": cathie_wood_agent,
         "cathie_wood_crypto_agent": cathie_wood_crypto_agent,
+        "elon_musk_crypto_agent": elon_musk_crypto_agent,
+        "vitalik_buterin_crypto_agent": vitalik_buterin_crypto_agent,
+        "changpeng_zhao_crypto_agent": changpeng_zhao_crypto_agent,
         "phil_fisher_agent": phil_fisher_agent,
         "peter_lynch_agent": peter_lynch_agent,
         "michael_burry_agent": michael_burry_agent,
