@@ -8,17 +8,27 @@ import { AnalysisResults }  from './analysis';
 
 // Predefined AI agents
 const agentOptions = [
-  { label: 'Warren Buffett', value: 'warren_buffett_agent', description: 'Analyzes quality businesses with strong fundamentals and reasonable prices' },
-  { label: 'Charlie Munger', value: 'charlie_munger_agent', description: 'Evaluates companies using mental models and considers moats and management quality' },
-  { label: 'Ben Graham', value: 'ben_graham_agent', description: 'Focuses on deep value stocks trading below intrinsic value with margin of safety' },
-  { label: 'Bill Ackman', value: 'bill_ackman_agent', description: 'Identifies high-quality businesses with long-term growth and activist potential' },
-  { label: 'Cathie Wood', value: 'cathie_wood_agent', description: 'Specializes in disruptive innovation and high-growth technology companies' },
+  { label: 'Warren Buffett', value: 'warren_buffett_agent', description: 'Analyzes quality businesses with strong fundamentals and reasonable prices'},
+  { label: 'Charlie Munger', value: 'charlie_munger_agent', description: 'Evaluates companies using mental models and considers moats and management quality'},
+  { label: 'Ben Graham', value: 'ben_graham_agent', description: 'Focuses on deep value stocks trading below intrinsic value with margin of safety'},
+  { label: 'Bill Ackman', value: 'bill_ackman_agent', description: 'Identifies high-quality businesses with long-term growth and activist potential'},
+  { label: 'Cathie Wood', value: 'cathie_wood_agent', description: 'Specializes in disruptive innovation and high-growth technology companies'},
   { label: 'Michael Burry', value: 'michael_burry_agent', description: 'Hedge fund manager who predicted the 2008 housing market crash and inspired The Big Short' },
   { label: 'Peter Lynch', value: 'peter_lynch_agent', description: 'Legendary investor who managed the Magellan Fund at Fidelity with outstanding returns' },
   { label: 'Phil Fisher', value: 'phil_fisher_agent', description: 'Pioneering growth investor and author of Common Stocks and Uncommon Profits' },
-  { label: 'Stanley Druckenmiller', value: 'stanley_druckenmiller_agent', description: 'Billionaire investor known for managing George Soros’s Quantum Fund and strong macro trades' },
-  { label: 'Nancy Pelosi', value: 'nancy_pelosi_agent', description: 'Analyzes stocks with policy/regulatory advantages and asymmetric information opportunities' },
-  { label: 'Wall Street Bets', value: 'wsb_agent', description: 'Identifies meme stocks, short squeeze candidates, and momentum plays' },
+  { label: 'Stanley Druckenmiller', value: 'stanley_druckenmiller_agent', description: "Billionaire investor known for managing George Soros's Quantum Fund and strong macro trades"},
+  { label: 'Nancy Pelosi', value: 'nancy_pelosi_agent', description: 'Analyzes stocks with policy/regulatory advantages and asymmetric information opportunities'},
+  { label: 'Wall Street Bets', value: 'wsb_agent', description: 'Identifies meme stocks, short squeeze candidates, and momentum plays'},
+  // { label: 'Technical Analysis', value: 'technical_analyst_agent', description: 'Uses price patterns, trends, and indicators to generate trading signals' },
+  // { label: 'Fundamental Analysis', value: 'fundamentals_agent', description: 'Examines company fundamentals like profitability, growth, and financial health' },
+  // { label: 'Sentiment Analysis', value: 'sentiment_agent', description: 'Analyzes market sentiment from news and insider trading' },
+  // { label: 'Valuation Analysis', value: 'valuation_agent', description: 'Calculates intrinsic value using multiple valuation methodologies' },
+  // { label: 'Risk Management', value: 'risk_management_agent', description: 'Controls position sizing based on portfolio risk factors' },
+];
+const agentOptionsForCrypto = [
+  { label: 'Warren Buffett', value: 'warren_buffett_agent', description: 'Analyzes quality businesses with strong fundamentals and reasonable prices'},
+  { label: 'Cathie Wood', value: 'cathie_wood_crypto_agent', description: 'Specializes in disruptive innovation and high-growth technology companies'},
+  { label: 'Wall Street Bets', value: 'wsb_agent', description: 'Identifies meme stocks, short squeeze candidates, and momentum plays'},
   // { label: 'Technical Analysis', value: 'technical_analyst_agent', description: 'Uses price patterns, trends, and indicators to generate trading signals' },
   // { label: 'Fundamental Analysis', value: 'fundamentals_agent', description: 'Examines company fundamentals like profitability, growth, and financial health' },
   // { label: 'Sentiment Analysis', value: 'sentiment_agent', description: 'Analyzes market sentiment from news and insider trading' },
@@ -55,6 +65,8 @@ const addResponse = (newResponse) => {
   const [tickers, setTickers] = useState([]);
   const [cryptos, setCryptos] = useState([]);
   const [isCrypto, setIsCrypto] = useState(true);
+  // Filter agents based on crypto support
+  const filteredAgents = !isCrypto? agentOptions : agentOptionsForCrypto;
   const [selectedSymbol, setSelectedSymbol] = useState(null);
   const responseEndRef = useRef(null);
 
@@ -213,7 +225,7 @@ const renderResponses = () => {
             </Typography>
             
             <Grid container spacing={1} sx={{ mb: 3 }}>
-              {agentOptions.map((agent) => (
+              {filteredAgents.map((agent) => (
                 <Grid item key={agent.value}>
                   <Tooltip title={agent.description} placement="top" arrow>
                     <Chip
@@ -254,8 +266,16 @@ const renderResponses = () => {
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
             <FormControlLabel
               control={<Switch checked={isCrypto} onChange={() => {
-  setIsCrypto(!isCrypto);
+  const newIsCrypto = !isCrypto;
+  setIsCrypto(newIsCrypto);
   setSelectedSymbol(null);
+  
+  // If current agent doesn't support crypto, select the first one that does
+  if (newIsCrypto ) {
+    setSelectedAgent(agentOptionsForCrypto[0]);
+  } else  {
+    setSelectedAgent(agentOptions[0]);
+  }
 }} disabled={loading} />}
               label={isCrypto ? "Ask About Today's Crypto Market" : "Ask About Today's Stock Market"}
             />

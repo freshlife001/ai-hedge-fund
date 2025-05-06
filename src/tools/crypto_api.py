@@ -427,6 +427,10 @@ def search_crypto_line_items(
                 elif item == "shareholders_equity":
                     # Not applicable for crypto
                     result.shareholders_equity = None
+                elif item == "market_data":
+                    # Not applicable for crypto
+                    result.market_data = market_data
+                
                     
                 
             return [result]
