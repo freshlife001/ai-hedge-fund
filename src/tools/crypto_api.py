@@ -29,10 +29,6 @@ _cache = get_cache()
 def get_api_keys():
     """Get all available API keys with fallback options."""
     return {
-        "alpha_vantage": os.environ.get("ALPHA_VANTAGE_API_KEY"),
-        "stockdata": os.environ.get("STOCKDATA_API_KEY"),
-        "finnhub": os.environ.get("FINNHUB_API_KEY"),
-        "eodhd": os.environ.get("EODHD_API_KEY"),
         "coingecko": os.environ.get("COINGECKO_API_KEY"),
         "cryptocompare": os.environ.get("CRYPTOCOMPARE_API_KEY"),
     }
