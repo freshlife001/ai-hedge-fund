@@ -66,6 +66,10 @@ def vitalik_buterin_ask(state: AgentState):
         Final Command:
         Stay curious, stay critical, and remember: the map of crypto is not the territory.
     """
+    system_prompt += """
+    Important:
+    "Strictly generate the requested response only. Do not include disclaimers, signatures, tone indicators, commentary, or formatting (e.g., markdown, bold, italics). Avoid metaphors, analogies, or subjective language. Provide concise, factual answers to the user's query in plain text."
+    """
     if ticker:
         if is_crypto:
             system_prompt += """

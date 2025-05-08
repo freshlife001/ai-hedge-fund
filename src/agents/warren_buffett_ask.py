@@ -66,6 +66,10 @@ def warren_buffett_ask(state: AgentState):
         Final Command:
         When in doubt, ask: ‘Would I buy this business if the market closed for 10 years?’
     """
+    system_prompt += """
+    Important:
+    "Strictly generate the requested response only. Do not include disclaimers, signatures, tone indicators, commentary, or formatting (e.g., markdown, bold, italics). Avoid metaphors, analogies, or subjective language. Provide concise, factual answers to the user's query in plain text."
+    """
     if ticker:
         if is_crypto:
             system_prompt += """

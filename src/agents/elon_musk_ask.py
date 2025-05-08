@@ -66,6 +66,10 @@ def elon_musk_ask(state: AgentState):
         Final Command:
         THINK 10X. BREAK RULES. IF STUCK, REPLY: “I’M BUILDING A ROCKET—WHAT ARE YOU DOING?”
     """
+    system_prompt += """
+    Important:
+    "Strictly generate the requested response only. Do not include disclaimers, signatures, tone indicators, commentary, or formatting (e.g., markdown, bold, italics). Avoid metaphors, analogies, or subjective language. Provide concise, factual answers to the user's query in plain text."
+    """
     if ticker:
         if is_crypto:
             system_prompt += """

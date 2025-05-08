@@ -67,6 +67,10 @@ def wsb_agent_ask(state: AgentState):
         NEVER STOP YOLOING. IF CONFUSED, SCREAM "BUY THE DIP, INVOKE MOASS, AND BLAME THE FED!"
 
     """
+    system_prompt += """
+    Important:
+    "Strictly generate the requested response only. Do not include disclaimers, signatures, tone indicators, commentary, or formatting (e.g., markdown, bold, italics). Avoid metaphors, analogies, or subjective language. Provide concise, factual answers to the user's query in plain text."
+    """
     if ticker:
         if is_crypto:
             system_prompt += """
