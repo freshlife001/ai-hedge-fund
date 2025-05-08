@@ -47,6 +47,14 @@ class AnalysisRequest(BaseModel):
     initialCash: float = Field(100000, description="Initial cash amount for portfolio")
     isCrypto: bool = Field(False, description="Whether the tickers are cryptocurrencies")
 
+# Define the request model for asking questions to analysts
+class AskRequest(BaseModel):
+    ticker: Optional[str] = Field(None, description="Ticker symbol to ask about")
+    selectedAgent: str = Field(..., description="Name of the analyst agent to ask")
+    question: str = Field(..., description="Question to ask the analyst about the ticker")
+    modelName: str = Field(..., description="Name of the LLM model to use")
+    isCrypto: bool = Field(False, description="Whether the ticker is a cryptocurrency")
+
 # Dictionary to store locks for each cache key
 _cache_locks = {}
 
@@ -250,6 +258,43 @@ def create_app():
             print(f"API error: {str(e)}")
             raise HTTPException(status_code=500, detail=str(e))
     
+    @app.post("/api/ask")
+    async def ask_analyst(request: Request, ask_req: AskRequest):
+        """Ask a specific analyst about a ticker"""
+        try:
+            print("Received ask request")
+            print(f"Request data: {ask_req.dict()}")
+            
+            ticker = ask_req.ticker
+            analyst = ask_req.selectedAgent
+            question = ask_req.question
+            model_name = ask_req.modelName
+            is_crypto = ask_req.isCrypto
+            
+            print(f"Processing question about ticker: {ticker}")
+            print(f"Asking analyst: {analyst}")
+            print(f"Question: {question}")
+            print(f"Using model: {model_name}")
+            
+            # Run the question-answering function in thread pool
+            loop = asyncio.get_event_loop()
+            result = await loop.run_in_executor(
+                _executor,
+                ask_analyst_for_web,
+                ticker,
+                analyst,
+                question,
+                model_name,
+                is_crypto
+            )
+            
+            print(f"Question answered successfully")
+            return result
+        
+        except Exception as e:
+            print(f"API error: {str(e)}")
+            raise HTTPException(status_code=500, detail=str(e))
+    
     return app
 
 from concurrent.futures import ThreadPoolExecutor
@@ -445,6 +490,130 @@ def run_hedge_fund_for_web(tickers, selected_analysts, model_name, start_date=No
     
     broadcast_log("Analysis completed successfully", "success")
     return result
+
+def ask_analyst_for_web(ticker, analyst, question, model_name, is_crypto=False):
+    """处理用户向特定分析师提问的功能
+    
+    Args:
+        ticker: 股票或加密货币代码
+        analyst: 分析师名称
+        question: 用户问题
+        model_name: 使用的LLM模型名称
+        is_crypto: 是否为加密货币
+        
+    Returns:
+        包含分析师回答的字典
+    """
+    # 导入必要的模块
+    from src.graph.state import AgentState
+    from src.llm.models import get_model_info
+    from src.utils.analysts import ANALYST_CONFIG
+    from langchain_core.prompts import ChatPromptTemplate
+    from langchain_core.messages import HumanMessage
+    from pydantic import BaseModel
+    from typing_extensions import Literal
+    from src.utils.llm import call_llm
+
+    # Process each analyst manually to bypass the workflow issues
+    from src.agents.wsb_agent_ask import wsb_agent_ask
+    from src.agents.warren_buffett_ask import warren_buffett_ask
+    from src.agents.cathie_wood_ask import cathie_wood_ask
+    from src.agents.elon_musk_ask import elon_musk_ask
+    from src.agents.changpeng_zhao_ask import changpeng_zhao_ask
+    from src.agents.vitalik_buterin_ask import vitalik_buterin_ask
+    
+    
+    # Map of available agents
+    agent_map = {
+        "warren_buffett": warren_buffett_ask,
+        "wsb_agent": wsb_agent_ask,
+        "vitalik_buterin_crypto": vitalik_buterin_ask,
+        "cathie_wood_crypto": cathie_wood_ask,
+        "elon_musk_crypto": elon_musk_ask,
+        "changpeng_zhao_crypto": changpeng_zhao_ask,
+    }
+    
+    # 导入进度跟踪器
+    try:
+        from src.utils.progress import progress
+    except ImportError:
+        from utils.progress import progress
+    
+    # 初始化进度
+    try:
+        progress.start()
+    except:
+        # 如果没有start方法则跳过
+        pass
+        
+    broadcast_log("开始处理分析师问答", "info")
+    
+    # 获取模型信息
+    model_info = get_model_info(model_name)
+    model_provider = model_info.provider.value if model_info else "Unknown"
+    broadcast_log(f"使用模型: {model_name} ({model_provider})", "info")
+    
+    # 创建初始状态
+    initial_state = {
+        "messages": [],
+        "data": {
+            "ticker": ticker,
+            "now": datetime.now().strftime("%Y-%m-%d"),
+            "is_crypto": is_crypto,
+            "question": question  # 添加用户问题到状态中
+        },
+        "metadata": {
+            "show_reasoning": True,
+            "model_name": model_name,
+            "model_provider": model_provider
+        }
+    }
+    
+    broadcast_log(f"分析股票代码: {ticker}", "info")
+    broadcast_log(f"咨询分析师: {analyst}", "info")
+    broadcast_log(f"问题: {question}", "info")
+    
+    # 查找对应的分析师代理函数
+    agent_func = None
+    analyst_display_name = ""
+    
+    # 直接从agent_map中查找分析师
+    for key, agent in agent_map.items():
+        if key + "_agent" == analyst or key == analyst:
+            agent_func = agent
+            break
+    
+    if not agent_func:
+        return {"error": f"找不到分析师: {analyst}"}
+    
+    try:
+        broadcast_log(f"正在咨询{analyst_display_name}关于{ticker}的问题", "info")
+        
+        answer = agent_func(AgentState(initial_state))
+        
+        # 构建结果
+        result = {
+            "ticker": ticker,
+            "analyst": analyst_display_name,
+            "question": question,
+            "answer": answer.content,
+        }
+        
+        broadcast_log("问题回答完成", "success")
+        return result
+        
+    except Exception as e:
+        broadcast_log(f"处理问题时出错: {str(e)}", "error")
+        import traceback
+        broadcast_log(traceback.format_exc(), "error")
+        return {"error": str(e)}
+    
+    finally:
+        # 停止进度跟踪
+        try:
+            progress.complete()
+        except:
+            pass
 
 def main():
     import uvicorn

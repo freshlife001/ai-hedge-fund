@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
-import { Box, Typography, TextField, Button, Paper, Container, CssBaseline, Chip, Grid, Tooltip, Card, CircularProgress, CardMedia, Divider, Autocomplete, FormControlLabel, Switch } from '@mui/material';
+import { Box, Typography, TextField, Button, Paper, Container, CssBaseline, Chip, Grid, Tooltip, Card, CircularProgress, CardMedia, Divider, FormControlLabel, Switch } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';
 import darkTheme from '../theme/darkTheme';
 import Head from 'next/head';
 import Image from 'next/image';
 import { AnalysisResults }  from './analysis';
+import { useRouter } from 'next/router';
 
 // Predefined AI agents
 const agentOptions = [
@@ -41,132 +42,20 @@ const agentOptionsForCrypto = [
 
 
 
+
 const AskPage = () => {
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const tickersRes = await fetch('available_tickers.json');
-      const cryptosRes = await fetch('available_cryptos.json');
-      const tickersData = await tickersRes.json();
-      const cryptosData = await cryptosRes.json();
-      // Filter out duplicate symbols
-      const uniqueCryptos = cryptosData.filter((crypto, index, self) =>
-        index === self.findIndex((c) => c.symbol === crypto.symbol)
-      );
-      setTickers(tickersData.tickers);
-      setCryptos(uniqueCryptos);
-    };
-    fetchData();
-  }, []);
-  const [responses, setResponses] = useState([]);
-
-const addResponse = (newResponse) => {
-  setResponses(prev => [...prev, newResponse]);
-};
   const [loading, setLoading] = useState(false);
-  const [selectedAgent, setSelectedAgent] = useState(agentOptions[0]); // Default to Warren Buffett
-  const [tickers, setTickers] = useState([]);
-  const [cryptos, setCryptos] = useState([]);
   const [isCrypto, setIsCrypto] = useState(true);
-  // Filter agents based on crypto support
-  const filteredAgents = !isCrypto? agentOptions : agentOptionsForCrypto;
-  const [selectedSymbol, setSelectedSymbol] = useState(null);
-  const responseEndRef = useRef(null);
+  const router = useRouter();
 
-const renderResponses = () => {
-  return (
-    <>
-      {responses.map((response, index) => (
-        typeof response === 'object' ? 
-          <AnalysisResults key={index} results={response} /> :
-          <Typography key={index} variant="body1" sx={{ mb: 2 }}>
-            {response}
-          </Typography>
-      ))}
-    </>
-  );
-};
+  const [selectedAgent, setSelectedAgent] = useState(agentOptions[0]); // Default to Warren Buffett
+  const filteredAgents = !isCrypto? agentOptions : agentOptionsForCrypto;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedSymbol) return;
-
-    setLoading(true);
-    
-    try {
-      let ticker = selectedSymbol.symbol;
-      if (isCrypto) {
-        ticker = "crypto:" + ticker;
-      }
-    
-
-      const ticker_list = ticker.split(',').map(t => t.trim());
-      const response = await fetch('/api/analysis', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          tickers: ticker,
-          modelName: 'deepseek-reasoner',
-          selectedAnalysts: [selectedAgent.value],
-          initialCash: 100000,
-          isCrypto: isCrypto,
-          showReasoning: true,
-          runRoundTable: false
-        })
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error ${response.status}`);
-      }
-      
-      const data = await response.json();
-      console.log(data);
-
-      // Manually create results if the API response isn't structured correctly
-      const formattedResults = {
-        tickers: ticker_list,
-        date: new Date().toISOString().split('T')[0],
-        signals: {}
-      };
-      
-      if (data && data.ticker_analyses) {
-        // Use API response
-        Object.keys(data.ticker_analyses).forEach(ticker => {
-          const analysis = data.ticker_analyses[ticker];
-          formattedResults.signals[ticker] = {
-            overallSignal: analysis.signals.overall || 'neutral',
-            confidence: analysis.signals.confidence || 60,
-            analysts: [selectedAgent].map(analyst => ({
-              name: analyst.label,
-              signal: analysis.signals[analyst.value] || 'neutral',
-              confidence: analysis.signals[`${analyst.value}_confidence`] || 60,
-              reasoning: analysis.reasoning[analyst.value] || 'No reasoning provided'
-            }))
-          };
-        });
-      } else {
-        // Create fake results as fallback
-        ticker_list.forEach(ticker => {
-          formattedResults.signals[ticker] = {
-            overallSignal: 'neutral',
-            confidence: 70,
-            analysts: [selectedAgent].map(analyst => ({
-              name: analyst.label,
-              signal: Math.random() > 0.5 ? 'bullish' : 'bearish',
-              confidence: 70,
-              reasoning: `Analysis for ${ticker} by ${analyst.label} (fallback data)`
-            }))
-          };
-        });
-      }
-      addResponse(formattedResults);
-    } catch (error) {
-      addResponse(`Error analyzing ${selectedSymbol.symbol}: ${error.message}`);
-    } finally {
-      setLoading(false);
-      responseEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }
+    router.push(`/conversation?agent=${selectedAgent.value}&isCrypto=${isCrypto}`);
   };
+      
   
   const handleAgentSelect = (agent) => {
     setSelectedAgent(agent);
@@ -271,7 +160,6 @@ const renderResponses = () => {
               control={<Switch checked={isCrypto} onChange={() => {
   const newIsCrypto = !isCrypto;
   setIsCrypto(newIsCrypto);
-  setSelectedSymbol(null);
   
   // If current agent doesn't support crypto, select the first one that does
   if (newIsCrypto ) {
@@ -283,31 +171,8 @@ const renderResponses = () => {
               label={isCrypto ? "Ask About Today's Crypto Market" : "Ask About Today's Stock Market"}
             />
           </Box>
-          <Autocomplete
-            options={isCrypto ? cryptos : tickers}
-            getOptionLabel={(option) => option.symbol.toUpperCase()}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label={isCrypto ? "Select a crypto symbol" : "Select a stock ticker symbol"}
-                variant="outlined"
-                sx={{ mb: 2 }}
-                disabled={loading}
-              />
-            )}
-            disabled={loading}
-            onChange={(event, newValue) => {
-              setSelectedSymbol(newValue);
-            }}
-            filterOptions={(options, state) => {
-              const inputValue = state.inputValue.trim().toLowerCase();
-              return options.filter(option => 
-                option.symbol.toLowerCase().includes(inputValue)
-              );
-            }}
-          />
           <Button 
-            disabled={loading || !selectedSymbol}
+            disabled={loading}
             startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
             type="submit" 
             variant="contained" 
@@ -318,17 +183,6 @@ const renderResponses = () => {
           </Button>
             </Box>
 
-            {loading && responses.length === 0 && (
-          <Paper elevation={2} sx={{ p: 3, borderRadius: 2 }}>
-            <Typography variant="h6" gutterBottom>Thinking...</Typography>
-
-          </Paper>
-            )}
-          {renderResponses()}
-
-          {responses.length > 0 && (
-          <Paper ref={responseEndRef} > </Paper>
-            )}
           </Grid>
         </Grid>
       </Container>

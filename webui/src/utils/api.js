@@ -88,4 +88,14 @@ export const getEnvConfig = async () => {
   }
 };
 
-export default api; 
+export const runAsk = async (params) => {
+  try {
+    const response = await api.post('/api/ask', params);
+    return response.data;
+  } catch (error) {
+    console.error('Error running ask:', error);
+    throw error;
+  }
+};
+
+export default api;
