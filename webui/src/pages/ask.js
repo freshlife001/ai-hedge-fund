@@ -8,7 +8,7 @@ import { AnalysisResults }  from './analysis';
 import { useRouter } from 'next/router';
 
 // Predefined AI agents
-const agentOptions = [
+export const agentOptions = [
   { label: 'Warren Buffett', value: 'warren_buffett_agent', description: 'Analyzes quality businesses with strong fundamentals and reasonable prices'},
   { label: 'Charlie Munger', value: 'charlie_munger_agent', description: 'Evaluates companies using mental models and considers moats and management quality'},
   { label: 'Ben Graham', value: 'ben_graham_agent', description: 'Focuses on deep value stocks trading below intrinsic value with margin of safety'},
@@ -26,13 +26,17 @@ const agentOptions = [
   // { label: 'Valuation Analysis', value: 'valuation_agent', description: 'Calculates intrinsic value using multiple valuation methodologies' },
   // { label: 'Risk Management', value: 'risk_management_agent', description: 'Controls position sizing based on portfolio risk factors' },
 ];
-const agentOptionsForCrypto = [
-  //{ label: 'Warren Buffett', value: 'warren_buffett_agent', description: 'Analyzes quality businesses with strong fundamentals and reasonable prices'},
+export const agentOptionsForCrypto = [
   { label: 'Elon Musk', value: 'elon_musk_crypto_agent', description: 'Tesla, SpaceX, Dogecoin advocate; crypto-influential tech visionary.'},
+  { label: 'Justin Sun', value: 'justin_sun_crypto_agent', description: 'The controversial founder of Tron (TRX), BitTorrent, and HTX exchange, known for aggressive marketing and crypto partnerships.'},
+  { label: 'Donald Trump', value: 'donald_trump_crypto_agent', description: 'A businessman, media personality, and the 45th and 47th U.S. President, known for his unconventional politics and rhetoric.'},
+  { label: 'Satoshi Nakamoto', value: 'satoshi_nakamoto_crypto_agent', description: 'The pseudonymous creator of Bitcoin, who introduced the cryptocurrency in 2008 and remains unidentified to date.'},
+  { label: 'Robert Kiyosaki', value: 'robert_kiyosaki_crypto_agent', description: 'Author of Rich Dad Poor Dad, advocates Bitcoin, viewing it as protection against inflation, economic collapse, and fiat currency risks'},
+  { label: 'Warren Buffett', value: 'warren_buffett_agent', description: 'Analyzes quality businesses with strong fundamentals and reasonable prices'},
   { label: 'Changpeng Zhao', value: 'changpeng_zhao_crypto_agent', description: 'Chinese crypto investor and analyst; crypto-influenced investor.'},
   { label: 'Vitalik Buterin', value: 'vitalik_buterin_crypto_agent', description: 'Ethereum and cryptocurrency pioneer; visionary investor.'},
-  //{ label: 'Cathie Wood', value: 'cathie_wood_crypto_agent', description: 'Specializes in disruptive innovation and high-growth technology companies'},
-  //{ label: 'Wall Street Bets', value: 'wsb_agent', description: 'Identifies meme stocks, short squeeze candidates, and momentum plays'},
+  { label: 'Cathie Wood', value: 'cathie_wood_crypto_agent', description: 'Specializes in disruptive innovation and high-growth technology companies'},
+  { label: 'Wall Street Bets', value: 'wsb_agent', description: 'Identifies meme stocks, short squeeze candidates, and momentum plays'},
   // { label: 'Technical Analysis', value: 'technical_analyst_agent', description: 'Uses price patterns, trends, and indicators to generate trading signals' },
   // { label: 'Fundamental Analysis', value: 'fundamentals_agent', description: 'Examines company fundamentals like profitability, growth, and financial health' },
   // { label: 'Sentiment Analysis', value: 'sentiment_agent', description: 'Analyzes market sentiment from news and insider trading' },
@@ -48,8 +52,9 @@ const AskPage = () => {
   const [isCrypto, setIsCrypto] = useState(true);
   const router = useRouter();
 
-  const [selectedAgent, setSelectedAgent] = useState(agentOptions[0]); // Default to Warren Buffett
   const filteredAgents = !isCrypto? agentOptions : agentOptionsForCrypto;
+  const [selectedAgent, setSelectedAgent] = useState(filteredAgents[0]); // Default to Warren Buffett
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();

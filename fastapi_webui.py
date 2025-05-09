@@ -385,7 +385,11 @@ def run_hedge_fund_for_web(tickers, selected_analysts, model_name, start_date=No
     from src.agents.valuation import valuation_agent
     from src.agents.risk_manager import risk_management_agent
     from src.agents.portfolio_manager import portfolio_management_agent
-    
+
+    from src.agents.justin_sun_crypto import justin_sun_crypto_agent
+    from src.agents.donald_trump_crypto import donald_trump_crypto_agent
+    from src.agents.satoshi_nakamoto_crypto import satoshi_nakamoto_crypto_agent
+    from src.agents.robert_kiyosaki_crypto import robert_kiyosaki_crypto_agent
     # Map of available agents
     agent_map = {
         "warren_buffett_agent": warren_buffett_agent,
@@ -408,7 +412,11 @@ def run_hedge_fund_for_web(tickers, selected_analysts, model_name, start_date=No
         "sentiment_agent": sentiment_agent,
         "valuation_agent": valuation_agent,
         "risk_management_agent": risk_management_agent,
-        "portfolio_management_agent": portfolio_management_agent
+        "portfolio_management_agent": portfolio_management_agent,
+        "justin_sun_crypto_agent": justin_sun_crypto_agent,
+        "donald_trump_crypto_agent": donald_trump_crypto_agent,
+        "satoshi_nakamoto_crypto_agent": satoshi_nakamoto_crypto_agent,
+        "robert_kiyosaki_crypto_agent": robert_kiyosaki_crypto_agent
     }
     
     # Current state
@@ -521,9 +529,11 @@ def ask_analyst_for_web(ticker, analyst, question, model_name, is_crypto=False):
     from src.agents.elon_musk_ask import elon_musk_ask
     from src.agents.changpeng_zhao_ask import changpeng_zhao_ask
     from src.agents.vitalik_buterin_ask import vitalik_buterin_ask
+    from src.agents.justin_sun_ask import justin_sun_ask
     from src.agents.crypto_expert import crypto_expert
-    
-    
+    from src.agents.donald_trump_ask import donald_trump_ask
+    from src.agents.satoshi_nakamoto_ask import satoshi_nakamoto_ask
+    from src.agents.robert_kiyosaki_ask import robert_kiyosaki_ask
     # Map of available agents
     agent_map = {
         "warren_buffett": warren_buffett_ask,
@@ -532,6 +542,10 @@ def ask_analyst_for_web(ticker, analyst, question, model_name, is_crypto=False):
         "cathie_wood_crypto": cathie_wood_ask,
         "elon_musk_crypto": elon_musk_ask,
         "changpeng_zhao_crypto": changpeng_zhao_ask,
+        "justin_sun_crypto": justin_sun_ask,
+        "donald_trump_crypto": donald_trump_ask,
+        "satoshi_nakamoto_crypto": satoshi_nakamoto_ask,
+        "robert_kiyosaki_crypto": robert_kiyosaki_ask,
     }
     
     # 导入进度跟踪器

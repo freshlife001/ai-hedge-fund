@@ -5,31 +5,8 @@ import darkTheme from '../theme/darkTheme';
 import Head from 'next/head';
 import { Send as SendIcon } from '@mui/icons-material';
 import { useRouter } from 'next/router';
+import { agentOptions, agentOptionsForCrypto } from './ask';
 
-// Predefined AI agents - reusing from ask.js
-const agentOptions = [
-  { label: 'Warren Buffett', value: 'warren_buffett_agent', description: 'Analyzes quality businesses with strong fundamentals and reasonable prices'},
-  { label: 'Charlie Munger', value: 'charlie_munger_agent', description: 'Evaluates companies using mental models and considers moats and management quality'},
-  { label: 'Ben Graham', value: 'ben_graham_agent', description: 'Focuses on deep value stocks trading below intrinsic value with margin of safety'},
-  { label: 'Bill Ackman', value: 'bill_ackman_agent', description: 'Identifies high-quality businesses with long-term growth and activist potential'},
-  { label: 'Cathie Wood', value: 'cathie_wood_agent', description: 'Specializes in disruptive innovation and high-growth technology companies'},
-  { label: 'Michael Burry', value: 'michael_burry_agent', description: 'Hedge fund manager who predicted the 2008 housing market crash and inspired The Big Short' },
-  { label: 'Peter Lynch', value: 'peter_lynch_agent', description: 'Legendary investor who managed the Magellan Fund at Fidelity with outstanding returns' },
-  { label: 'Phil Fisher', value: 'phil_fisher_agent', description: 'Pioneering growth investor and author of Common Stocks and Uncommon Profits' },
-  { label: 'Stanley Druckenmiller', value: 'stanley_druckenmiller_agent', description: "Billionaire investor known for managing George Soros's Quantum Fund and strong macro trades"},
-  { label: 'Nancy Pelosi', value: 'nancy_pelosi_agent', description: 'Analyzes stocks with policy/regulatory advantages and asymmetric information opportunities'},
-  { label: 'Wall Street Bets', value: 'wsb_agent', description: 'Identifies meme stocks, short squeeze candidates, and momentum plays'},
-];
-
-// Crypto-specific agents
-const cryptoAgentOptions = [
-  { label: 'Warren Buffett', value: 'warren_buffett_agent', description: 'Analyzes quality businesses with strong fundamentals and reasonable prices'},
-  { label: 'Elon Musk', value: 'elon_musk_crypto_agent', description: 'Tesla, SpaceX, Dogecoin advocate; crypto-influential tech visionary.'},
-  { label: 'Changpeng Zhao', value: 'changpeng_zhao_crypto_agent', description: 'Chinese crypto investor and analyst; crypto-influenced investor.'},
-  { label: 'Vitalik Buterin', value: 'vitalik_buterin_crypto_agent', description: 'Ethereum and cryptocurrency pioneer; visionary investor.'},
-  { label: 'Cathie Wood', value: 'cathie_wood_crypto_agent', description: 'Specializes in disruptive innovation and high-growth technology companies'},
-  { label: 'Wall Street Bets', value: 'wsb_agent', description: 'Identifies meme stocks, short squeeze candidates, and momentum plays'},
-];
 
 const ConversationPage = () => {
   const router = useRouter();
@@ -84,7 +61,7 @@ const ConversationPage = () => {
     // Only set agent and add system message if we haven't done it yet
     if (!selectedAgent) {
       let agentToUse;
-      const availableAgents = isCrypto ? cryptoAgentOptions : agentOptions;
+      const availableAgents = isCrypto ? agentOptionsForCrypto : agentOptions;
       
       if (agent) {
         const foundAgent = availableAgents.find(a => a.value === agent);
@@ -288,7 +265,7 @@ const ConversationPage = () => {
     setSelectedTicker(null); // Reset selected ticker when switching modes
     
     // Update available agents based on crypto mode
-    const availableAgents = newIsCrypto ? cryptoAgentOptions : agentOptions;
+    const availableAgents = newIsCrypto ? agentOptionsForCrypto : agentOptions;
     
     // If current agent isn't available in the new mode, switch to first available
     if (selectedAgent && !availableAgents.some(a => a.value === selectedAgent.value)) {
