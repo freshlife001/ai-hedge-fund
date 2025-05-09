@@ -521,6 +521,7 @@ def ask_analyst_for_web(ticker, analyst, question, model_name, is_crypto=False):
     from src.agents.elon_musk_ask import elon_musk_ask
     from src.agents.changpeng_zhao_ask import changpeng_zhao_ask
     from src.agents.vitalik_buterin_ask import vitalik_buterin_ask
+    from src.agents.crypto_expert import crypto_expert
     
     
     # Map of available agents
@@ -560,7 +561,8 @@ def ask_analyst_for_web(ticker, analyst, question, model_name, is_crypto=False):
             "ticker": ticker,
             "now": datetime.now().strftime("%Y-%m-%d"),
             "is_crypto": is_crypto,
-            "question": question  # 添加用户问题到状态中
+            "question": question,  # 添加用户问题到状态中
+            "context": ""
         },
         "metadata": {
             "show_reasoning": True,
@@ -585,11 +587,17 @@ def ask_analyst_for_web(ticker, analyst, question, model_name, is_crypto=False):
     
     if not agent_func:
         return {"error": f"找不到分析师: {analyst}"}
+
+    state = AgentState(initial_state)
     
     try:
+        broadcast_log(f"正在咨询 crypto_expert 关于{ticker}的问题", "info")
+        
+        state["data"]["context"] = crypto_expert(state)
+        print(state["data"]["context"])
         broadcast_log(f"正在咨询{analyst_display_name}关于{ticker}的问题", "info")
         
-        answer = agent_func(AgentState(initial_state))
+        answer = agent_func(state)
         
         # 构建结果
         result = {

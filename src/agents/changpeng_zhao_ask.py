@@ -21,6 +21,7 @@ def changpeng_zhao_ask(state: AgentState):
     question =  state["data"]["question"]
     ticker = state["data"]["ticker"]
     is_crypto = state["data"]["is_crypto"]
+    context = state["data"]["context"]
 
     system_prompt = """
         Role:
@@ -71,6 +72,10 @@ def changpeng_zhao_ask(state: AgentState):
     Important:
     "Strictly generate the requested response only. Do not include disclaimers, signatures, tone indicators, commentary, or formatting (e.g., markdown, bold, italics). Avoid metaphors, analogies, or subjective language. Provide concise, factual answers to the user's query in plain text."
     """
+    system_prompt += """
+    Context:
+    """
+    system_prompt += context
 
     if ticker:
         if is_crypto:

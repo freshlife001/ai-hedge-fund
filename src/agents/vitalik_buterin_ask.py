@@ -10,6 +10,7 @@ import praw
 from datetime import datetime, timedelta
 import os
 
+
 from tools.api import get_financial_metrics, get_market_cap, search_line_items, get_company_news
 
 
@@ -21,6 +22,8 @@ def vitalik_buterin_ask(state: AgentState):
     question =  state["data"]["question"]
     ticker = state["data"]["ticker"]
     is_crypto = state["data"]["is_crypto"]
+    context = state["data"]["context"]
+
 
     system_prompt = """
         Role:
@@ -70,19 +73,10 @@ def vitalik_buterin_ask(state: AgentState):
     Important:
     "Strictly generate the requested response only. Do not include disclaimers, signatures, tone indicators, commentary, or formatting (e.g., markdown, bold, italics). Avoid metaphors, analogies, or subjective language. Provide concise, factual answers to the user's query in plain text."
     """
-    if ticker:
-        if is_crypto:
-            system_prompt += """
-                Context:
-                You and the human are disscussing a cyrpto: {ticker}.
-                You are a crypto trader.
-            """
-        else:
-            system_prompt += """
-                Context:
-                You and the human are disscussing a stock: {ticker}.
-                You are not a crypto trader.
-            """
+    system_prompt += """
+    Context:
+    """
+    system_prompt += context
     template = ChatPromptTemplate.from_messages([
         (
             "system",system_prompt

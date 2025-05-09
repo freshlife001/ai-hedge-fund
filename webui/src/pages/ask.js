@@ -27,12 +27,12 @@ const agentOptions = [
   // { label: 'Risk Management', value: 'risk_management_agent', description: 'Controls position sizing based on portfolio risk factors' },
 ];
 const agentOptionsForCrypto = [
-  { label: 'Warren Buffett', value: 'warren_buffett_agent', description: 'Analyzes quality businesses with strong fundamentals and reasonable prices'},
+  //{ label: 'Warren Buffett', value: 'warren_buffett_agent', description: 'Analyzes quality businesses with strong fundamentals and reasonable prices'},
   { label: 'Elon Musk', value: 'elon_musk_crypto_agent', description: 'Tesla, SpaceX, Dogecoin advocate; crypto-influential tech visionary.'},
   { label: 'Changpeng Zhao', value: 'changpeng_zhao_crypto_agent', description: 'Chinese crypto investor and analyst; crypto-influenced investor.'},
   { label: 'Vitalik Buterin', value: 'vitalik_buterin_crypto_agent', description: 'Ethereum and cryptocurrency pioneer; visionary investor.'},
-  { label: 'Cathie Wood', value: 'cathie_wood_crypto_agent', description: 'Specializes in disruptive innovation and high-growth technology companies'},
-  { label: 'Wall Street Bets', value: 'wsb_agent', description: 'Identifies meme stocks, short squeeze candidates, and momentum plays'},
+  //{ label: 'Cathie Wood', value: 'cathie_wood_crypto_agent', description: 'Specializes in disruptive innovation and high-growth technology companies'},
+  //{ label: 'Wall Street Bets', value: 'wsb_agent', description: 'Identifies meme stocks, short squeeze candidates, and momentum plays'},
   // { label: 'Technical Analysis', value: 'technical_analyst_agent', description: 'Uses price patterns, trends, and indicators to generate trading signals' },
   // { label: 'Fundamental Analysis', value: 'fundamentals_agent', description: 'Examines company fundamentals like profitability, growth, and financial health' },
   // { label: 'Sentiment Analysis', value: 'sentiment_agent', description: 'Analyzes market sentiment from news and insider trading' },
@@ -152,10 +152,11 @@ const AskPage = () => {
   boxShadow: 3,
   zIndex: 1200,
   maxWidth: 'md',
-  margin: '0 auto'
+  margin: '0 auto',
+  
 }}>
 <Box />
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 , justifyContent: 'center'}}>
             <FormControlLabel
               control={<Switch checked={isCrypto} onChange={() => {
   const newIsCrypto = !isCrypto;
@@ -171,6 +172,7 @@ const AskPage = () => {
               label={isCrypto ? "Ask About Today's Crypto Market" : "Ask About Today's Stock Market"}
             />
           </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 , justifyContent: 'center'}}>
           <Button 
             disabled={loading}
             startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
@@ -179,8 +181,10 @@ const AskPage = () => {
             color="primary" 
             sx={{ px: 4 }}
           >
-            {loading ? `${selectedAgent.label} is thinking ...` : `Ask ${selectedAgent.label}`}
+            {loading ? `${selectedAgent.label} is typing ...` : `Ask ${selectedAgent.label}`}
           </Button>
+          </Box>
+
             </Box>
 
           </Grid>

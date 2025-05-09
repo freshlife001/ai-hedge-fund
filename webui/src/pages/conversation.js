@@ -445,7 +445,7 @@ const ConversationPage = () => {
           {loading && (
             <Box sx={{ display: 'flex', alignItems: 'center', mt: 2, mb:4 ,ml:2}}>
               <CircularProgress size={20} sx={{ mr: 1 }} />
-              <Typography variant="body2">{selectedAgent?.label || 'Investment Expert'} is thinking...</Typography>
+              <Typography variant="body2">{selectedAgent?.label || 'Investment Expert'} is typing...</Typography>
             </Box>
           )}
         </Paper>
