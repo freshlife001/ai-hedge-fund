@@ -647,7 +647,10 @@ def ask_analyst_for_web(ticker, analyst, question, model_name, is_crypto=False):
     try:
         broadcast_log(f"正在咨询 crypto_expert 关于{ticker}的问题", "info")
         
-        state["data"]["context"] = crypto_expert(state)
+        if ticker and ticker != "":
+            state["data"]["context"] = ""
+        else:
+            state["data"]["context"] = crypto_expert(state)
         print(state["data"]["context"])
         broadcast_log(f"正在咨询{analyst_display_name}关于{ticker}的问题", "info")
         
