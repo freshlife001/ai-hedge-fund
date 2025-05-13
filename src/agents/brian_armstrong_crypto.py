@@ -179,5 +179,5 @@ def generate_brian_armstrong_output(
         model_provider=model_provider,
         pydantic_model=BrianArmstrongSignal,
         agent_name="brian_armstrong_crypto_agent",
-        default=create_default_brian_armstrong_signal()
+        default_factory=create_default_brian_armstrong_signal
     )

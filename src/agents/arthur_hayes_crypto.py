@@ -177,5 +177,5 @@ def generate_arthur_hayes_output(
         model_provider=model_provider,
         pydantic_model=ArthurHayesSignal,
         agent_name="arthur_hayes_crypto_agent",
-        default_response=create_default_arthur_hayes_signal()
+        default_factory=create_default_arthur_hayes_signal
     )

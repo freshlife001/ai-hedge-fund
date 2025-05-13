@@ -181,5 +181,5 @@ def generate_hayden_adams_output(
         model_provider=model_provider,
         pydantic_model=HaydenAdamsSignal,
         agent_name="hayden_adams_crypto_agent",
-        default_response=create_default_hayden_adams_signal()
+        default_factory=create_default_hayden_adams_signal
     )

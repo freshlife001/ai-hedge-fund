@@ -177,5 +177,5 @@ def generate_jack_dorsey_output(
         model_provider=model_provider,
         pydantic_model=JackDorseySignal,
         agent_name="jack_dorsey_crypto_agent",
-        default_response=create_default_jack_dorsey_signal()
+        default_factory=create_default_jack_dorsey_signal
     )

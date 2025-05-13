@@ -186,5 +186,5 @@ def generate_andre_cronje_output(
         model_provider=model_provider,
         pydantic_model=AndreCronjeSignal,
         agent_name="andre_cronje_crypto_agent",
-        default_response=create_default_andre_cronje_signal()
+        default_factory=create_default_andre_cronje_signal
     )

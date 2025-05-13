@@ -107,5 +107,5 @@ def andre_cronje_ask(state: AgentState):
         model_provider=model_provider,
         pydantic_model=AndreCronjeSignal,
         agent_name="andre_cronje_ask",
-        default_response=create_default_cronje_signal()
+        default_factory=create_default_cronje_signal
     )

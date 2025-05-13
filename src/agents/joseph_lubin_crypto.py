@@ -180,5 +180,5 @@ def generate_joseph_lubin_output(
         model_provider=model_provider,
         pydantic_model=JosephLubinSignal,
         agent_name="joseph_lubin_crypto_agent",
-        default_response=create_default_joseph_lubin_signal()
+        default_factory=create_default_joseph_lubin_signal
     )

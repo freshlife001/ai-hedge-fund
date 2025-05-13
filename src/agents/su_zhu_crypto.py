@@ -183,5 +183,5 @@ def generate_su_zhu_output(
         model_provider=model_provider,
         pydantic_model=SuZhuSignal,
         agent_name="su_zhu_crypto_agent",
-        default_response=create_default_su_zhu_signal()
+        default_factory=create_default_su_zhu_signal
     )

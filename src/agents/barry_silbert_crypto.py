@@ -182,5 +182,5 @@ def generate_barry_silbert_output(
         model_provider=model_provider,
         pydantic_model=BarrySilbertSignal,
         agent_name="barry_silbert_crypto_agent",
-        default_response=create_default_barry_silbert_signal()
+        default_factory=create_default_barry_silbert_signal
     )
