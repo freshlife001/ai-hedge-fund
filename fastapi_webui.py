@@ -390,6 +390,16 @@ def run_hedge_fund_for_web(tickers, selected_analysts, model_name, start_date=No
     from src.agents.donald_trump_crypto import donald_trump_crypto_agent
     from src.agents.satoshi_nakamoto_crypto import satoshi_nakamoto_crypto_agent
     from src.agents.robert_kiyosaki_crypto import robert_kiyosaki_crypto_agent
+    from src.agents.andre_cronje_crypto import andre_cronje_crypto_agent
+    from src.agents.arthur_hayes_crypto import arthur_hayes_crypto_agent
+    from src.agents.barry_silbert_crypto import barry_silbert_crypto_agent
+    from src.agents.brian_armstrong_crypto import brian_armstrong_crypto_agent
+    from src.agents.hayden_adams_crypto import hayden_adams_crypto_agent
+    from src.agents.jack_dorsey_crypto import jack_dorsey_crypto_agent
+    from src.agents.joseph_lubin_crypto import joseph_lubin_crypto_agent
+    from src.agents.michael_saylor_crypto import michael_saylor_crypto_agent
+    from src.agents.su_zhu_crypto import su_zhu_crypto_agent
+
     # Map of available agents
     agent_map = {
         "warren_buffett_agent": warren_buffett_agent,
@@ -416,7 +426,17 @@ def run_hedge_fund_for_web(tickers, selected_analysts, model_name, start_date=No
         "justin_sun_crypto_agent": justin_sun_crypto_agent,
         "donald_trump_crypto_agent": donald_trump_crypto_agent,
         "satoshi_nakamoto_crypto_agent": satoshi_nakamoto_crypto_agent,
-        "robert_kiyosaki_crypto_agent": robert_kiyosaki_crypto_agent
+        "robert_kiyosaki_crypto_agent": robert_kiyosaki_crypto_agent,
+
+        "andre_cronje_crypto_agent": andre_cronje_crypto_agent,
+        "arthur_hayes_crypto_agent": arthur_hayes_crypto_agent,
+        "barry_silbert_crypto_agent": barry_silbert_crypto_agent,
+        "brian_armstrong_crypto_agent": brian_armstrong_crypto_agent,
+        "hayden_adams_crypto_agent": hayden_adams_crypto_agent,
+        "jack_dorsey_crypto_agent": jack_dorsey_crypto_agent,
+        "joseph_lubin_crypto_agent": joseph_lubin_crypto_agent,
+        "michael_saylor_crypto_agent": michael_saylor_crypto_agent,
+        "su_zhu_crypto_agent": su_zhu_crypto_agent,
     }
     
     # Current state
@@ -534,6 +554,17 @@ def ask_analyst_for_web(ticker, analyst, question, model_name, is_crypto=False):
     from src.agents.donald_trump_ask import donald_trump_ask
     from src.agents.satoshi_nakamoto_ask import satoshi_nakamoto_ask
     from src.agents.robert_kiyosaki_ask import robert_kiyosaki_ask
+
+    from src.agents.andre_cronje_ask import andre_cronje_ask
+    from src.agents.arthur_hayes_ask import arthur_hayes_ask
+    from src.agents.barry_silbert_ask import barry_silbert_ask
+    from src.agents.brian_armstrong_ask import brian_armstrong_ask
+    from src.agents.hayden_adams_ask import hayden_adams_ask
+    from src.agents.jack_dorsey_ask import jack_dorsey_ask
+    from src.agents.joseph_lubin_ask import joseph_lubin_ask
+    from src.agents.michael_saylor_ask import michael_saylor_ask
+    from src.agents.su_zhu_ask import su_zhu_ask
+    
     # Map of available agents
     agent_map = {
         "warren_buffett": warren_buffett_ask,
@@ -546,6 +577,15 @@ def ask_analyst_for_web(ticker, analyst, question, model_name, is_crypto=False):
         "donald_trump_crypto": donald_trump_ask,
         "satoshi_nakamoto_crypto": satoshi_nakamoto_ask,
         "robert_kiyosaki_crypto": robert_kiyosaki_ask,
+        "andre_cronje_crypto": andre_cronje_ask,
+        "arthur_hayes_crypto": arthur_hayes_ask,
+        "barry_silbert_crypto": barry_silbert_ask,
+        "brian_armstrong_crypto": brian_armstrong_ask,
+        "hayden_adams_crypto": hayden_adams_ask,
+        "jack_dorsey_crypto": jack_dorsey_ask,
+        "joseph_lubin_crypto": joseph_lubin_ask,
+        "michael_saylor_crypto": michael_saylor_ask,
+        "su_zhu_crypto": su_zhu_ask,
     }
     
     # 导入进度跟踪器

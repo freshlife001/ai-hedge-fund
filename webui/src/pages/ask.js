@@ -26,6 +26,8 @@ export const agentOptions = [
   // { label: 'Valuation Analysis', value: 'valuation_agent', description: 'Calculates intrinsic value using multiple valuation methodologies' },
   // { label: 'Risk Management', value: 'risk_management_agent', description: 'Controls position sizing based on portfolio risk factors' },
 ];
+
+
 export const agentOptionsForCrypto = [
   { label: 'Elon Musk', value: 'elon_musk_crypto_agent', description: 'Tesla, SpaceX, Dogecoin advocate; crypto-influential tech visionary.'},
   { label: 'Justin Sun', value: 'justin_sun_crypto_agent', description: 'The controversial founder of Tron (TRX), BitTorrent, and HTX exchange, known for aggressive marketing and crypto partnerships.'},
@@ -37,12 +39,24 @@ export const agentOptionsForCrypto = [
   { label: 'Vitalik Buterin', value: 'vitalik_buterin_crypto_agent', description: 'Ethereum and cryptocurrency pioneer; visionary investor.'},
   { label: 'Cathie Wood', value: 'cathie_wood_crypto_agent', description: 'Specializes in disruptive innovation and high-growth technology companies'},
   { label: 'Wall Street Bets', value: 'wsb_agent', description: 'Identifies meme stocks, short squeeze candidates, and momentum plays'},
+
+  { label: 'Andre Cronje', value: 'andre_cronje_crypto_agent', description: 'Creator of Yearn Finance and multiple DeFi protocols, known for innovative smart contract designs.'},
+  { label: 'Arthur Hayes', value: 'arthur_hayes_crypto_agent', description: 'Co-founder of BitMEX exchange, known for macro crypto analysis and derivatives expertise.'},
+  { label: 'Barry Silbert', value: 'barry_silbert_crypto_agent', description: 'Founder of Digital Currency Group and Grayscale Investments, early institutional crypto advocate.'},
+  { label: 'Brian Armstrong', value: 'brian_armstrong_crypto_agent', description: 'CEO of Coinbase, focused on regulatory-compliant crypto adoption and infrastructure.'},
+  { label: 'Hayden Adams', value: 'hayden_adams_crypto_agent', description: 'Creator of Uniswap, pioneer of automated market maker (AMM) decentralized exchanges.'},
+  { label: 'Jack Dorsey', value: 'jack_dorsey_crypto_agent', description: 'Twitter co-founder now focused on Bitcoin through Block (Square) and Lightning Network development.'},
+  { label: 'Joseph Lubin', value: 'joseph_lubin_crypto_agent', description: 'Ethereum co-founder and founder of ConsenSys, focused on enterprise blockchain adoption.'},
+  { label: 'Michael Saylor', value: 'michael_saylor_crypto_agent', description: 'MicroStrategy CEO who transformed the company into a Bitcoin-focused treasury reserve asset.'},
+  { label: 'Su Zhu', value: 'su_zhu_crypto_agent', description: 'Co-founder of Three Arrows Capital, known for macro crypto trading strategies and market cycles.'},
+
   // { label: 'Technical Analysis', value: 'technical_analyst_agent', description: 'Uses price patterns, trends, and indicators to generate trading signals' },
   // { label: 'Fundamental Analysis', value: 'fundamentals_agent', description: 'Examines company fundamentals like profitability, growth, and financial health' },
   // { label: 'Sentiment Analysis', value: 'sentiment_agent', description: 'Analyzes market sentiment from news and insider trading' },
   // { label: 'Valuation Analysis', value: 'valuation_agent', description: 'Calculates intrinsic value using multiple valuation methodologies' },
   // { label: 'Risk Management', value: 'risk_management_agent', description: 'Controls position sizing based on portfolio risk factors' },
 ];
+
 
 
 
