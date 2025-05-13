@@ -194,5 +194,5 @@ def generate_michael_saylor_output(
         model_provider=model_provider,
         pydantic_model=MichaelSaylorSignal,
         agent_name="michael_saylor_crypto_agent",
-        default=create_default_michael_saylor_signal
+        default_factory=create_default_michael_saylor_signal
     )
