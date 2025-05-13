@@ -75,6 +75,8 @@ def crypto_expert(state: AgentState):
             agent_name="crypto_expert", 
             default_factory=create_default,
         )
+        if result.keyword == "":
+            return ""
         if is_crypto:
             search_terms = f"{result.keyword} crypto"
         else:
