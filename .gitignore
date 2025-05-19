@@ -50,3 +50,5 @@ Thumbs.db
 # PDF files
 *.pdf
 .next
+webui/rate-limits.json
+webui/.env.local

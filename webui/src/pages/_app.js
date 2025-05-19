@@ -14,7 +14,7 @@ function MyApp({ Component, pageProps }) {
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
       <Head>
-        <title>Hedge Fund AI</title>
+        <title>Mises AI</title>
         <meta name="description" content="AI-powered investment analysis platform" />
         <link rel="icon" href="/favicon.ico" />
         {/* Font links moved to _document.js */}

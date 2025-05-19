@@ -6,6 +6,7 @@ import Head from 'next/head';
 import { Send as SendIcon } from '@mui/icons-material';
 import { useRouter } from 'next/router';
 import { agentOptions, agentOptionsForCrypto } from './ask';
+import { decodeUserFromToken } from '../utils/auth';
 
 
 const ConversationPage = () => {
@@ -20,6 +21,7 @@ const ConversationPage = () => {
   const [selectedTicker, setSelectedTicker] = useState(null);
   const messagesEndRef = useRef(null);
   const [tickerSelectFixed, setTickerSelectFixed] = useState(true);
+  const [user, setUser] = useState(null);
   
   const tickerSelectStyles = {
     position: 'sticky',
@@ -30,8 +32,15 @@ const ConversationPage = () => {
     boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
   };
 
-  // Load tickers and cryptos data
+  // Load user from token and tickers/cryptos data
   useEffect(() => {
+
+    fetch('/api/auth/me')
+    .then(response => response.json())
+    .then(userData => setUser(userData.user))
+    .catch(error => console.error('Failed to fetch user data:', error));
+
+    // Load tickers and cryptos data
     const fetchData = async () => {
       try {
         const tickersRes = await fetch('/available_tickers.json');
@@ -119,6 +128,23 @@ const ConversationPage = () => {
     document.title = title;
   }, [selectedAgent, selectedTicker, isCrypto]);
 
+  const handleRateLimitExceeded = () => {
+    const tweetText = `I'm using Mises AI Trading Assistant! Check it out: https://www.mises.site/download`;
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
+    setMessages(prev => [...prev, {
+      id: Date.now(),
+      text: `Rate limit exceeded today. To ask more questions, please <a href="${twitterUrl}" target="_blank" rel="noopener noreferrer" class="twitter-share-button" style="color: #1DA1F2;">Invite a friend on X</a>.`,
+      sender: 'system',
+      timestamp: new Date().toISOString(),
+      action: {
+        type: 'twitter_share',
+        text: 'Check out this amazing AI investment assistant!',
+        url: window.location.href
+      }
+    }]);
+    setLoading(false);
+  };
+
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!inputMessage.trim() || !selectedAgent) return;
@@ -164,6 +190,12 @@ const ConversationPage = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody)
       });
+      
+      if (response.status === 429) {
+          handleRateLimitExceeded();
+          return;
+        }
+      
       const data = await response.json();
       console.log(data);
       
@@ -230,6 +262,11 @@ const ConversationPage = () => {
             runRoundTable: false
           })
         });
+        
+        if (response.status === 429) {
+          handleRateLimitExceeded();
+          return;
+        }
         
         const data = await response.json();
         console.log(data);
@@ -342,7 +379,7 @@ const ConversationPage = () => {
                 Start a conversation with {selectedAgent?.label || 'Investment Expert'}
               </Typography>
               <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 1 }}>
-                Ask about investment strategies, market analysis, or specific stocks
+                Ask about investment strategies, trading analysis, or specific stocks
               </Typography>
             </Box>
           ) : (
@@ -359,7 +396,12 @@ const ConversationPage = () => {
                 >
                   <ListItemAvatar sx={{ minWidth: 40, mr: 1, ml:1 }}>
                     {message.sender === 'user' ? (
-                      <Avatar sx={{ bgcolor: 'primary.main' }}>U</Avatar>
+                      <Avatar 
+                        src={user?.twitterAvatar || undefined}
+                        sx={{ bgcolor: 'primary.main' }}
+                      >
+                        {!user?.twitterAvatar && 'U'}
+                      </Avatar>
                     ) : message.sender === 'system' ? (
                       <Avatar sx={{ bgcolor: 'grey.500' }}>S</Avatar>
                     ) : (
@@ -377,7 +419,7 @@ const ConversationPage = () => {
                         component="span"
                         color="text.secondary"
                       >
-                        {message.sender === 'user' ? 'You' : 
+                        {message.sender === 'user' ? user?.name || 'You' : 
                          message.sender === 'system' ? 'System' : 
                          message.agent?.label || selectedAgent.label}
                       </Typography>
@@ -403,9 +445,8 @@ const ConversationPage = () => {
                                   'common.white' : 'text.primary',
                             whiteSpace: 'pre-wrap'
                           }}
-                        >
-                          {message.text}
-                        </Typography>
+                          dangerouslySetInnerHTML={{ __html: message.text }}
+                        />
                       </Paper>
                     }
                     sx={{

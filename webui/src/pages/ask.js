@@ -72,7 +72,7 @@ const AskPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    router.push(`/conversation?agent=${selectedAgent.value}&isCrypto=${isCrypto}`);
+    //router.push(`/conversation?agent=${selectedAgent.value}&isCrypto=${isCrypto}`);
   };
       
   
@@ -95,7 +95,7 @@ const AskPage = () => {
         }}
       >
         <Typography variant="h5" component="h1" sx={{ fontWeight: 'bold' }}>
-          Mises AI Market Assistant
+          Mises AI Trading Assistant
         </Typography>
       </Paper>
 
@@ -175,7 +175,7 @@ const AskPage = () => {
   
 }}>
 <Box />
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 , justifyContent: 'center'}}>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 , justifyContent: 'center', gap: 2}}>
             <FormControlLabel
               control={<Switch checked={isCrypto} onChange={() => {
   const newIsCrypto = !isCrypto;
@@ -194,13 +194,17 @@ const AskPage = () => {
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 , justifyContent: 'center'}}>
           <Button 
             disabled={loading}
-            startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
+            startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <img src="/x-logo.svg" alt="X" width={20} height={20} />}
             type="submit" 
             variant="contained" 
-            color="primary" 
+            color="primary"
+            onClick={() => {
+    const redirectPath = `/conversation?agent=${selectedAgent.value}&isCrypto=${isCrypto}`;
+    window.location.href = `/api/auth/x?redirect=${encodeURIComponent(redirectPath)}`;
+  }} 
             sx={{ px: 4 }}
           >
-            {loading ? `${selectedAgent.label} is typing ...` : `Ask ${selectedAgent.label}`}
+            {loading ? `${selectedAgent.label} is typing ...` : `Signin with X to Ask ${selectedAgent.label}`}
           </Button>
           </Box>
 
@@ -220,7 +224,7 @@ AskPage.getLayout = (page) => (
     <CssBaseline />
     <Head>
       <title>Ask AI</title>
-      <meta name="description" content="Ask questions to our AI investment assistant" />
+      <meta name="description" content="Ask questions to our AI Trading Assistant" />
     </Head>
     {page}
   </ThemeProvider>
