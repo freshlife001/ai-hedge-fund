@@ -437,16 +437,28 @@ const ConversationPage = () => {
                           display: 'inline-block'
                         }}
                       >
-                        <Typography 
-                          variant="body1" 
-                          component="div"
-                          sx={{ 
-                            color: message.sender === 'user' || message.sender === 'system' ? 
-                                  'common.white' : 'text.primary',
-                            whiteSpace: 'pre-wrap'
-                          }}
-                          dangerouslySetInnerHTML={{ __html: message.text }}
-                        />
+                        {message.sender === 'system' ? (
+                          <Typography 
+                            variant="body1" 
+                            component="div"
+                            sx={{ 
+                              color: 'common.white',
+                              whiteSpace: 'pre-wrap'
+                            }}
+                            dangerouslySetInnerHTML={{ __html: message.text }}
+                          />
+                        ) : (
+                          <Typography 
+                            variant="body1" 
+                            component="div"
+                            sx={{ 
+                              color: message.sender === 'user' ? 'common.white' : 'text.primary',
+                              whiteSpace: 'pre-wrap'
+                            }}
+                          >
+                            {message.text}
+                          </Typography>
+                        )}
                       </Paper>
                     }
                     sx={{
