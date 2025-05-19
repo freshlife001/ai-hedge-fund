@@ -3,7 +3,7 @@ import { Box, Typography, TextField, Button, Paper, Container, CssBaseline, Chip
 import { ThemeProvider } from '@mui/material/styles';
 import darkTheme from '../theme/darkTheme';
 import Head from 'next/head';
-import { Send as SendIcon } from '@mui/icons-material';
+import { Send as SendIcon, Share as ShareIcon } from '@mui/icons-material';
 import { useRouter } from 'next/router';
 import { agentOptions, agentOptionsForCrypto } from './ask';
 import { decodeUserFromToken } from '../utils/auth';
@@ -22,14 +22,22 @@ const ConversationPage = () => {
   const messagesEndRef = useRef(null);
   const [tickerSelectFixed, setTickerSelectFixed] = useState(true);
   const [user, setUser] = useState(null);
+  const [hasLoadedConversation, setHasLoadedConversation] = useState(false);
   
   const tickerSelectStyles = {
     position: 'sticky',
     top: 0,
+    width: '50%',
     zIndex: 10,
     backgroundColor: 'background.paper',
     padding: '2px',
     boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+  };
+
+  const shareStyles = {
+    position: 'sticky',
+    top: 0,
+    zIndex: 10,
   };
 
   // Load user from token and tickers/cryptos data
@@ -63,7 +71,40 @@ const ConversationPage = () => {
   useEffect(() => {
     if (!router.isReady) return;
     
-    const { agent, ticker, isCrypto } = router.query;
+    const { agent, ticker, isCrypto, id: conversationId } = router.query;
+    
+    
+    // Load shared conversation if ID is provided
+    if (conversationId && !hasLoadedConversation) {
+      const loadSharedConversation = async () => {
+        try {
+          const response = await fetch(`/api/conversation?id=${conversationId}`);
+          const data = await response.json();
+          const conversation = data.conversation;
+          if (conversation.messages) {
+            setMessages(conversation.messages);
+          }
+          if (conversation.agent) {
+            const availableAgents = conversation.isCrypto ? agentOptionsForCrypto : agentOptions;
+            const foundAgent = availableAgents.find(a => a.value === conversation.agent.id);
+            setSelectedAgent(foundAgent || availableAgents[0]);
+          }
+          if (conversation.isCrypto !== undefined) {
+            setIsCrypto(conversation.isCrypto);
+          }
+          if (conversation.ticker) {
+            const symbolsToSearch = conversation.isCrypto ? cryptos : tickers;
+            const foundTicker = symbolsToSearch.find(t => t.symbol === conversation.ticker.symbol);
+            setSelectedTicker(foundTicker || null);
+          }
+        } catch (error) {
+          console.error('Error loading shared conversation:', error);
+        }
+      };
+      
+      loadSharedConversation();
+      setHasLoadedConversation(true);
+    }
     
     setIsCrypto(isCrypto === 'true');
     
@@ -339,9 +380,9 @@ const ConversationPage = () => {
 
       <Container maxWidth="md" sx={{ flexGrow: 1, py: 4, px: 1, display: 'flex', flexDirection: 'column' }}>
         {/* Mode Selection and Ticker Selection */}
-        <Box sx={{ mb: 0 }}>
-          
-          <Autocomplete
+        <Box sx={{ mb: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+
+        <Autocomplete
             id="ticker-select" style={tickerSelectStyles}
             options={isCrypto ? cryptos : tickers}
             getOptionLabel={(option) => `${isCrypto ? option.name :option.symbol}`}
@@ -356,8 +397,42 @@ const ConversationPage = () => {
                 fullWidth
               />
             )}
-            sx={{ mb: 2 }}
+            sx={{ mb: 0 }}
           />
+          <Button
+            style={{...shareStyles, border: 'none', boxShadow: 'none'}}
+            disabled={messages.length === 0}
+            onClick={async () => {
+              try {
+                const response = await fetch('/api/conversation', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    messages: messages.filter(m => m.sender !== 'system'),
+                    agent: {
+                      id: selectedAgent.value,
+                      name: selectedAgent.label
+                    },
+                    ticker: selectedTicker ? {
+                      symbol: selectedTicker.symbol,
+                      name: selectedTicker.name
+                    } : null,
+                    isCrypto,
+                    createdAt: new Date().toISOString()
+                  })
+                });
+                const { conversationId } = await response.json();
+                const shareUrl = `${window.location.origin}/conversation?id=${conversationId}`;
+                const tweetText = `Check out my conversation with ${selectedAgent.label} about ${selectedTicker ? selectedTicker.symbol : 'investments'}! ${shareUrl}`;
+                window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`, '_blank');
+              } catch (error) {
+                console.error('Error sharing conversation:', error);
+              }
+            }}
+            startIcon={<ShareIcon />}
+            sx={{ mr: 1 }}
+          >Share</Button>
+          
         </Box>
         
         {/* Chat Messages */}

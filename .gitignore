@@ -52,3 +52,4 @@ Thumbs.db
 .next
 webui/rate-limits.json
 webui/.env.local
+webui/data/
